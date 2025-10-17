@@ -1,0 +1,559 @@
+/* ==================================
+ * 基本設定 & リセット
+ * ================================== */
+:root {
+    --color-text: #1f2937;
+    --color-bg: #f9fafb;
+    --color-primary: #0a4cb6; /*メインカラー*/
+    --color-white: #ffffff;
+    --color-gray-light: #f3f4f6;
+    --color-gray-dark: #374151;
+    --color-gray-text: #6b7280;
+    --header-height: 80px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    overflow-y: scroll;
+}
+
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    line-height: 1.6;
+}
+
+h1, h2, h3 {
+    line-height: 1.2;
+}
+
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: #2563eb;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+.container {
+    max-width: 1100px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* ==================================
+ * ヘッダー
+ * ================================== */
+.site-header {
+    background-color: var(--color-white);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.header-inner {
+    padding-top: 0.5rem;
+    padding-bottom: 0;
+    position: relative;
+}
+
+.site-header .logo {
+    font-size: 2.0rem;
+    font-weight: 700;
+    color: #111827;
+    padding-bottom: 0.1rem;
+    display: inline-block;
+}
+
+.site-header .main-nav {
+    display: none;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+}
+
+.site-header .main-nav a {
+    color: var(--color-text); /*ヘッダーの項目の文字のカラー*/
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    /*border-radius: 0.375rem;*/
+    border-radius: 0rem;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.site-header .main-nav a:hover {
+    color: var(--color-text);
+    background-color: var(--color-gray-light);
+}
+
+.site-header .main-nav a.active {
+    color: var(--color-primary);
+    font-weight: 700;
+}
+
+.mobile-menu-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: absolute;
+    top: 1.6rem;
+    right: 1.5rem;
+}
+
+.mobile-menu {
+    display: none;
+    background-color: var(--color-white);
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    padding: 0 1.5rem 1rem;
+}
+
+.mobile-menu.active {
+    display: block;
+}
+
+.mobile-menu a {
+    display: block;
+    padding: 0.75rem 0.5rem;
+    color: var(--color-gray-text);
+    /*border-radius: 0.375rem;*/
+    border-radius: 0rem;
+}
+.mobile-menu a:hover {
+    color: var(--color-text);
+    background-color: var(--color-gray-light);
+}
+
+@media (min-width: 1024px) {
+    .mobile-menu-button {
+        display: none;
+    }
+    .site-header .main-nav {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+}
+
+/* ==================================
+ * 汎用セクションスタイル
+ * ================================== */
+.page-section {
+    padding: 3rem 0;
+}
+
+.section-title {
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+.content-block-container {
+    display: grid;
+    gap: 2.5rem;
+}
+.content-block {
+    background-color: var(--color-white);
+    padding: 2rem;
+    /*border-radius: 0.5rem;*/
+    border-radius: 0rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+.content-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    border-bottom: 4px solid var(--color-primary);
+    padding-bottom: 0.5rem;
+}
+.content-image {
+    /*border-radius: 0.5rem;*/
+    border-radius: 0rem;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    .page-section {
+        padding: 4rem 0;
+    }
+}
+
+/* ==================================
+ * トップイメージ (Hero)
+ * ================================== */
+
+/* 従来の .hero スタイルは削除 */
+
+/* ▼▼▼ 新しいヒーローギャラリー用のスタイルを追加 ▼▼▼ */
+.hero-gallery-section .gallery-wrapper {
+    height: 50vh; /* ヒーローエリアの高さを画面の高さの50%に設定 */
+    max-height: 600px; /* 高くなりすぎないように最大高さを設定 */
+    position: relative;
+}
+
+.hero-gallery-section .gallery-container,
+.hero-gallery-section .gallery-item {
+    height: 100%; /* 親要素の高さに合わせる */
+}
+
+/* ヒーローギャラリーでは常に画像を1枚だけ表示 */
+.hero-gallery-section .gallery-item {
+    flex: 0 0 100%;
+    padding: 0;
+    /*background-color: #000;  黒い背景色 */
+    /*background-color: #fff;*/
+}
+
+.hero-gallery-section .gallery-item img {
+    width: 100%;
+    height: 100%;
+    /*object-fit: cover;  画像を歪ませずにエリア全体に表示 */
+    object-fit: contain;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: var(--color-white);
+    padding: 1rem;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.hero-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.hero-subtitle {
+    font-size: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .hero-title {
+        font-size: 3.75rem;
+    }
+    .hero-subtitle {
+        font-size: 1.5rem;
+    }
+}
+/* ▲▲▲ ここまで ▲▲▲ */
+
+/* ==================================
+ * ホームページ (index.html)
+ * ================================== */
+.content-grid {
+    display: grid;
+    gap: 2.5rem;
+}
+/*
+@media (min-width: 1024px) {
+    .content-grid {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+*/
+.text-right {
+    text-align: right;
+    margin-top: 1rem;
+}
+.link-arrow {
+    font-weight: 600;
+}
+.link-arrow::after {
+    content: ' →';
+}
+.news-summary-list {
+    list-style: none;
+}
+.news-summary-list li {
+    margin-bottom: 1rem;
+    border-bottom: 4px solid #e5e7eb;
+    padding-bottom: 1rem;
+}
+.news-summary-list li:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+.news-summary-list .date {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--color-gray-text);
+}
+.news-summary-list a {
+    color: var(--color-text);
+}
+.news-summary-list a:hover {
+    color: var(--color-primary);
+}
+
+
+/* ==================================
+ * お知らせページ (news.html)
+ * ================================== */
+.news-list {
+    max-width: 800px;
+    margin: 0 auto;
+    display: grid;
+    gap: 1.5rem;
+}
+
+.news-item {
+    background-color: var(--color-gray-light);
+    padding: 1.25rem;
+    /*border-radius: 0.5rem;*/
+    border-radius: 0rem;
+    border-left: 2px solid var(--color-primary);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+}
+
+.news-item .date {
+    font-size: 0.875rem;
+    color: var(--color-gray-text);
+    margin-bottom: 0.25rem;
+}
+
+.news-item .title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+#extra-news {
+    display: none;
+}
+
+#extra-news.active {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.toggle-news-wrapper {
+    text-align: center;
+    padding-top: 1.5rem;
+}
+
+.toggle-news-btn {
+    font-weight: 600;
+    font-size: 1.1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* ==================================
+ * メンバーページ (members.html)
+ * ================================== */
+.members-container {
+    max-width: 900px;
+    margin: 0 auto;
+    display: grid;
+    gap: 2rem;
+}
+
+.member-group .group-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    border-bottom: 4px solid var(--color-primary);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.member-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.faculty-grid {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.faculty-member {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.faculty-member img {
+    width: 8rem;
+    height: 8rem;
+    /*border-radius: 0.5rem;*/
+    border-radius: 0rem;
+    /*object-fit: cover;*/
+    object-fit: contain;
+    /*background-color: #000;  ← 黒い背景色 */
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.faculty-member p {
+    font-weight: 600;
+    text-align: center;
+}
+
+/* 教員の名前のフォントサイズ */
+.faculty-grid .faculty-member p {
+    font-size: 1.25rem;
+}
+
+@media (min-width: 768px) {
+    .member-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.member-grid p {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+/* ==================================
+ * メンバーページの教員名リンク
+ * ================================== */
+.faculty-member p a {
+    color: var(--color-text); /* 通常時の文字色 */
+    text-decoration: none;    /* 下線を消す */
+    transition: color 0.2s ease; /* 色がなめらかに変わる設定 */
+}
+
+.faculty-member p a:hover {
+    color: var(--color-primary); /* マウスを乗せた時の文字色（サイトの水色） */
+    text-decoration: underline;    /* マウスを乗せた時に下線を引く */
+}
+
+/* ==================================
+ * 研究業績ページ (achievements.html)
+ * ================================== */
+.achievements-list {
+    padding-left: 1.5rem;
+}
+.achievements-list li {
+    margin-bottom: 0.75rem;
+}
+
+/* ==================================
+ * ギャラリー
+ * ================================== */
+.gallery-wrapper {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.gallery-container {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.gallery-container::-webkit-scrollbar { display: none; }
+.gallery-container { -ms-overflow-style: none; scrollbar-width: none; }
+
+.gallery-item {
+    flex-shrink: 0; /* アイテムが縮まないように設定 */
+    width: 32rem; /* 写真の幅を固定  */
+    scroll-snap-align: center;
+    padding: 0.5rem;
+    /*background-color: #000;  ← 黒い背景色 */
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 20rem;
+    /*object-fit: cover;*/
+    object-fit: contain;
+    /*border-radius: 0.5rem;*/
+    border-radius: 0rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+
+.gallery-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    /*border-radius: 50%;*/
+    border-radius: 0%;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.gallery-btn:hover {
+    background-color: rgba(255, 255, 255, 1);
+}
+
+.gallery-btn.prev { left: 0.5rem; }
+.gallery-btn.next { right: 0.5rem; }
+.gallery-btn svg { width: 1.5rem; height: 1.5rem; }
+
+/* ==================================
+ * アクセス
+ * ================================== */
+#contact {
+    text-align: center;
+}
+#contact .address {
+    margin-bottom: 2rem;
+}
+#contact .email-link {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+.map-container {
+    margin-top: 2.5rem;
+    /*border-radius: 0.5rem;*/
+    border-radius: 0rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+
+/* ==================================
+ * フッター
+ * ================================== */
+.site-footer {
+    background-color: #111827;
+    color: #9ca3af;
+    text-align: center;
+    padding: 1.5rem;
+}
