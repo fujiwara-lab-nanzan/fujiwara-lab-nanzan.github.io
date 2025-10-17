@@ -312,6 +312,23 @@ img {
     color: var(--color-primary);
 }
 
+/* ==================================
+ * 動画のレスポンシブ対応
+ * ================================== */
+.video-container {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* アスペクト比 16:9 の場合 */
+    overflow: hidden;
+}
+
+.video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
 
 /* ==================================
  * お知らせページ (news.html)
@@ -556,4 +573,15 @@ img {
     color: #9ca3af;
     text-align: center;
     padding: 1.5rem;
+}
+
+
+/* ==================================
+ * スマホでのレイアウト調整
+ * ================================== */
+@media (max-width: 1023px) {
+    .content-grid {
+        /* 画面が狭いときは1列（縦並び）にする */
+        grid-template-columns: 1fr;
+    }
 }
