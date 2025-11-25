@@ -383,6 +383,31 @@ img {
     cursor: pointer;
 }
 
+/* ニュース内の画像エリア */
+.news-images {
+    display: flex;
+    flex-wrap: wrap; /* 枚数が多い場合に折り返す */
+    gap: 10px;       /* 画像同士の隙間 */
+    margin-top: 1rem; /* テキストとの間隔 */
+}
+
+/* ニュース内の画像単体設定 */
+.news-images img {
+    height: 120px;       /* 高さを固定して高さを揃える（変更可） */
+    width: auto;         /* 横幅は自動調整 */
+    object-fit: cover;   /* 比率を維持してトリミング */
+    border: 1px solid #ddd; /* 薄い枠線（背景が白の場合の境界用） */
+    border-radius: 0px;  /* 角 */
+    transition: transform 0.2s ease;
+}
+
+/* スマホ閲覧時の調整 */
+@media (max-width: 600px) {
+    .news-images img {
+        height: 80px; /* スマホでは少し小さく表示 */
+    }
+}
+
 /* ==================================
  * メンバーページ (members.html)
  * ================================== */
