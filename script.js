@@ -61,8 +61,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const itemCount = originalItems.length;
             let scrollTimeout;
 
-            // 幅を動的に取得する関数
-            const getCurrentItemWidth = () => galleryContainer.querySelector('.gallery-item')?.offsetWidth || 0;
+            // 画像のアスペクト比に基づいて各gallery-itemの幅を動的に設定
+            const GALLERY_IMG_HEIGHT = 320; // 20rem = 320px（1rem=16px）
+            const adjustGalleryItemWidths = () => {
+                const items = galleryContainer.querySelectorAll('.gallery-item');
+                items.forEach(item => {
+                    const img = item.querySelector('img');
+                    if (img && img.naturalWidth && img.naturalHeight) {
+                        const aspectRatio = img.naturalWidth / img.naturalHeight;
+                        const calculatedWidth = GALLERY_IMG_HEIGHT * aspectRatio;
+                        item.style.width = calculatedWidth + 'px';
+                    } else if (img) {
+                        // 画像がまだ読み込まれていない場合
+                        img.addEventListener('load', () => {
+                            if (img.naturalWidth && img.naturalHeight) {
+                                const aspectRatio = img.naturalWidth / img.naturalHeight;
+                                const calculatedWidth = GALLERY_IMG_HEIGHT * aspectRatio;
+                                item.style.width = calculatedWidth + 'px';
+                            }
+                        }, { once: true });
+                    }
+                });
+            };
+
+            // 平均アイテム幅を取得する関数
+            const getCurrentItemWidth = () => {
+                const items = galleryContainer.querySelectorAll('.gallery-item');
+                if (items.length === 0) return 0;
+                let totalWidth = 0;
+                items.forEach(item => totalWidth += item.offsetWidth);
+                return totalWidth / items.length;
+            };
 
             const setupGallery = () => {
                 galleryContainer.innerHTML = '';
@@ -72,6 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 allItems.forEach(item => galleryContainer.appendChild(item.cloneNode(true)));
                 allItems.slice().reverse().forEach(item => galleryContainer.prepend(item.cloneNode(true)));
                 
+                // 画像のサイズに合わせて枠を調整
+                adjustGalleryItemWidths();
+
                 galleryContainer.style.scrollBehavior = 'auto';
 
                 // 準備が整うのを待ってからスクロール位置を設定
@@ -81,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         galleryContainer.scrollLeft = itemWidth * itemCount;
                     }
                     galleryContainer.style.scrollBehavior = 'smooth';
-                }, 100); // 少しだけ待機時間を増やして安定させる
+                }, 200); // 画像読み込み後に正確な幅が反映されるよう待機
             };
             
             window.addEventListener('load', setupGallery);

@@ -524,7 +524,7 @@ img {
 
 .gallery-item {
     flex-shrink: 0; /* アイテムが縮まないように設定 */
-    width: 32rem; /* 写真の幅を固定  */
+    /* 幅はJSで画像アスペクト比に基づいて動的に設定 */
     scroll-snap-align: center;
     padding: 0.5rem;
     /*background-color: #000;  ← 黒い背景色 */
@@ -533,8 +533,7 @@ img {
 .gallery-item img {
     width: 100%;
     height: 20rem;
-    /*object-fit: cover;*/
-    object-fit: contain;
+    object-fit: cover;
     /*border-radius: 0.5rem;*/
     border-radius: 0rem;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
