@@ -1,3 +1,14 @@
+<!-- 
+===================================================================
+藤原研究室 ホームページ - トピックス一覧（news.html）
+===================================================================
+このファイルは「トピックス（ニュース）」ページの一覧表示レイアウトを定義しています。
+
+【注意点】
+- トピックス（お知らせ）の実データは「news-data.js」で一元管理されています。このファイルを直接編集する必要はありません。
+- ニュースの追加・修正・削除は「news-data.js」を編集してください。自動的にこのページに反映されます。
+===================================================================
+-->
 <!DOCTYPE html>
 <html lang="ja">
 
@@ -8,14 +19,19 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
+    <!-- 
+    【共通ヘッダー】
+    メニュー項目を増やしたり変更したりする場合は、このブロックおよび下方の
+    モバイルメニュー（mobile-menu）、そして他ページ（index.html等）のヘッダーも同様に修正してください。
+    -->
     <header class="site-header">
         <div class="container header-inner">
-            <a href="index.html" class="logo">南山大学藤原研究室</a>
+            <a href="index.html" class="logo">南山大学 藤原研究室</a>
             <nav class="main-nav">
                 <a href="index.html">ホーム</a>
                 <a href="news.html">トピックス</a>
@@ -27,7 +43,7 @@
                 <a href="contact.html">アクセス</a>
                 <a href="links.html">リンク</a>
             </nav>
-            <button id="mobile-menu-button" class="mobile-menu-button">
+            <button id="mobile-menu-button" class="mobile-menu-button" aria-label="メニュー">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7">
                     </path>
@@ -47,68 +63,17 @@
         </div>
     </header>
 
-    <main>
+    <main style="padding-top: var(--header-height);">
         <section id="news" class="page-section">
             <div class="container">
-                <h2 class="section-title">トピックス</h2>
-                <div class="news-list">
-                    <!--
-                    <h3 class="group-title"> 2026年</h3>
-                    <div class="news-item">
-                        <p class="date">日付</p>
-                        <h3 class="title">文章</h3>
-                    </div>
-                    -->
-                    <h3 class="group-title"> 2026年</h3>
-                    <div class="news-item">
-                        <p class="date">2026.03.23</p>
-                        <h3 class="title">
-                            2025年12月に開催されたSI2025において修士1年の石橋侑也さんの「アレイ信号処理による表面音響導波路上の小型障害物の測位」が優秀講演賞を受賞しました。</h3>
-                    </div>
-                    <div class="news-item">
-                        <p class="date">2026.02.13</p>
-                        <h3 class="title">修士1年の石橋侑也さんが、第一級陸上無線技術士に合格しました。</h3>
-                    </div>
-                    <h3 class="group-title"> 2025年</h3>
-                    <div class="news-item">
-                        <p class="date">2025.12.10-12</p>
-                        <h3 class="title">
-                            修士1年の青山晃平さん、稲吉陸仁さん、石橋侑也さん、兼松祥己さん、眞野健さんが、第26回計測自動制御学会システムインテグレーション部門講演会にて発表しました。</h3>
-                    </div>
-                    <div class="news-item">
-                        <p class="date">2025.11.21</p>
-                        <h3 class="title">修士1年の玉串潤さんが、第30回パターン計測シンポジウムにて発表しました。</h3>
-                    </div>
-                    <div class="news-item">
-                        <p class="date">2025.11.15</p>
-                        <h3 class="title">修士1年の石橋侑也さんが、22nd IEEE TOWERS のグルーブワークイベントで TOWERS Mobility UIUX Award
-                            を受賞しました。</h3>
-                    </div>
-                    <div class="news-item">
-                        <p class="date">2025.11.15</p>
-                        <h3 class="title">修士１年の石橋侑也さん，眞野健さん，兼松祥己さん，学部4年の瀬川優斗さんにIEEE東京支部より感謝状が授与されました．</h3>
-                        <div class="news-images">
-                            <img src="img/news/IEEETOWERS感謝状.jpg" alt="">
-                        </div>
-                    </div>
-                    <div class="news-item">
-                        <p class="date">2025.11.15</p>
-                        <h3 class="title">修士1年の眞野健さん、石橋侑也さん、兼松祥己さんが、The 22nd IEEE TOWERSにて発表しました。</h3>
-                        <!--
-                        <div class="news-images">
-                            <img src="img/" alt="">
-                            <img src="img/" alt="">
-                        </div>
-                        -->
-                    </div>
-                    <div class="news-item">
-                        <p class="date">2025.09.25-26</p>
-                        <h3 class="title">修士1年の玉串潤さんが、第42回センシングフォーラム 計測部門大会にて発表しました。</h3>
-                    </div>
-                    <div class="news-item">
-                        <p class="date">2025.08.01</p>
-                        <h3 class="title">修士1年の眞野健さんが、第二級陸上無線技術士に合格しました。</h3>
-                    </div>
+                <h2 class="section-title"><span class="section-title-en">Topics</span><span class="section-title-ja">トピックス</span></h2>
+                <!-- 
+                【トピックスリストコンテナ】
+                ここに表示されるニュース項目は「news-data.js」からJavaScript（script.js）を介して
+                自動で読み込まれ、年別にグループ化されて表示されます。この場所を直接編集する必要はありません。
+                -->
+                <div class="news-list" id="news-page-list">
+                    <!-- JavaScriptによって動的に生成されます -->
                 </div>
             </div>
         </section>
@@ -118,6 +83,21 @@
         <p>&copy; 2025 藤原研究室, 南山大学. All Rights Reserved.</p>
     </footer>
 
+    <!-- 
+    【画像拡大用オーバーレイ】
+    ニュース内の写真をクリックしたときに、画面全体に拡大表示するためのコンテナです。
+    表示と非表示の制御は script.js、デザインは style.css で定義されています。
+    -->
+    <div id="image-overlay" class="image-overlay" aria-hidden="true">
+        <img id="overlay-img" src="" alt="拡大画像">
+    </div>
+
+    <!-- 
+    【データおよびスクリプトの読み込み】
+    - news-data.js: トピックス（ニュース）データの一元管理ファイル
+    - script.js: 動的トピックス生成、ヘッダースクロール変化等のスクリプト
+    -->
+    <script src="news-data.js"></script>
     <script src="script.js"></script>
 </body>
 

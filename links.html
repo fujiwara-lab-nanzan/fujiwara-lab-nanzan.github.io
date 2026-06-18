@@ -1,3 +1,18 @@
+<!-- 
+===================================================================
+藤原研究室 ホームページ - 関連リンク（links.html）
+===================================================================
+このファイルは「リンク」ページのレイアウトと内容を定義しています。
+
+【編集可能な主な箇所】
+- リンク先URL、表示する文言（51行目〜）
+
+【リンクの追加方法】
+<ul class="achievements-list"> の中に、以下の行を追加してください。
+  <li><a href="URLのパス" target="_blank">表示テキスト</a></li>
+※ target="_blank" をつけておくと、クリックしたときに新しいタブで開きます。
+===================================================================
+-->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -7,12 +22,17 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- 
+    【共通ヘッダー】
+    メニュー項目を増やしたり変更したりする場合は、このブロックおよび下方の
+    モバイルメニュー（mobile-menu）、そして他ページ（index.html等）のヘッダーも同様に修正してください。
+    -->
     <header class="site-header">
         <div class="container header-inner">
-            <a href="index.html" class="logo">南山大学藤原研究室</a>
+            <a href="index.html" class="logo">南山大学 藤原研究室</a>
             <nav class="main-nav">
                 <a href="index.html">ホーム</a>
                 <a href="news.html">トピックス</a>
@@ -24,7 +44,7 @@
                 <a href="contact.html">アクセス</a>
                 <a href="links.html">リンク</a>
             </nav>
-            <button id="mobile-menu-button" class="mobile-menu-button">
+            <button id="mobile-menu-button" class="mobile-menu-button" aria-label="メニュー">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
             </button>
         </div>
@@ -41,12 +61,16 @@
         </div>
     </header>
 
-    <main>
+    <main style="padding-top: var(--header-height);">
         <section id="links-content" class="page-section">
             <div class="container">
-                <h2 class="section-title">リンク</h2>
+                <h2 class="section-title"><span class="section-title-en">Links</span><span class="section-title-ja">リンク</span></h2>
+                <!-- 
+                【リンク一覧】
+                新しいリンクを追加したい場合は、以下のリスト（ul）の中にリストアイテム（li）を追加してください。
+                -->
                 <div class="content-block-container">
-                    <article class="content-block">
+                    <article class="content-block fade-in-up">
                         <ul class="achievements-list">
                             <li><a href="https://www.nanzan-u.ac.jp/" target="_blank">南山大学</a></li>
                             <li><a href="https://www.nanzan-u.ac.jp/Dept/fot.html" target="_blank">南山大学理工学部</a></li>
@@ -64,6 +88,10 @@
         <p>&copy; 2025 藤原研究室, 南山大学. All Rights Reserved.</p>
     </footer>
 
+    <!-- 
+    【スクリプトの読み込み】
+    - script.js: ヘッダースクロール変化等の共通スクリプト
+    -->
     <script src="script.js"></script>
 </body>
 </html>

@@ -1,3 +1,20 @@
+<!-- 
+===================================================================
+藤原研究室 ホームページ - 研究設備（equipments.html）
+===================================================================
+このファイルは「研究設備」ページのレイアウトと内容を定義しています。
+
+【編集可能な主な箇所】
+- 研究設備アイテム（画像と名前）の追加・編集・削除（51行目〜）
+
+【設備の追加方法】
+<div class="member-grid"> の中に、以下のブロックを追加してください。
+  <p>
+      <img src="画像のパス" alt="設備名" style="max-width: 100%; height: auto;">
+      設備名
+  </p>
+===================================================================
+-->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -7,12 +24,17 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
+    <!-- 
+    【共通ヘッダー】
+    メニュー項目を増やしたり変更したりする場合は、このブロックおよび下方の
+    モバイルメニュー（mobile-menu）、そして他ページ（index.html等）のヘッダーも同様に修正してください。
+    -->
     <header class="site-header">
         <div class="container header-inner">
-            <a href="index.html" class="logo">南山大学藤原研究室</a>
+            <a href="index.html" class="logo">南山大学 藤原研究室</a>
             <nav class="main-nav">
                 <a href="index.html">ホーム</a>
                 <a href="news.html">トピックス</a>
@@ -24,7 +46,7 @@
                 <a href="contact.html">アクセス</a>
                 <a href="links.html">リンク</a>
             </nav>
-            <button id="mobile-menu-button" class="mobile-menu-button">
+            <button id="mobile-menu-button" class="mobile-menu-button" aria-label="メニュー">
                 <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
             </button>
         </div>
@@ -41,12 +63,17 @@
         </div>
     </header>
 
-    <main>
+    <main style="padding-top: var(--header-height);">
         <section id="prospectives-content" class="page-section">
             <div class="container">
-                <h2 class="section-title">研究設備</h2>
+                <h2 class="section-title"><span class="section-title-en">Equipment</span><span class="section-title-ja">研究設備</span></h2>
+                <!-- 
+                【研究設備グリッド】
+                設備名と画像が並ぶグリッドレイアウトです。設備を追加・変更する際は、
+                以下の「member-grid」内の各 <p> ブロックを編集・複製してください。
+                -->
                 <div class="content-block-container">
-                    <div class="member-group">
+                    <div class="member-group fade-in-up">
                         <!--<h3 class="group-title"> タイトル</h3> -->
                         <div class="member-grid">
                             <p><img src="img/equipments/AUTD3.jpg" alt="" style="max-width: 100%; height: auto;">
@@ -86,6 +113,10 @@
         <p>&copy; 2025 藤原研究室, 南山大学. All Rights Reserved.</p>
     </footer>
 
+    <!-- 
+    【スクリプトの読み込み】
+    - script.js: ヘッダースクロール変化等の共通スクリプト
+    -->
     <script src="script.js"></script>
 </body>
 </html>
