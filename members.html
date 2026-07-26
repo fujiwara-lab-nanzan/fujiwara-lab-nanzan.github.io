@@ -11,10 +11,13 @@
 【メンバーの追加方法】
 各学年の <div class="member-grid"> の中に、以下のブロックを追加してください。
   <div class="faculty-member">
-      <img src="画像のパス" alt="名前">
+      <img src="画像のパス" width="画像の横幅" height="画像の高さ" loading="lazy" decoding="async" alt="名前">
       <p>名前</p>
   </div>
-※ 画像がない場合は "img/students/nopicture.png" を指定してください。
+※ 画像がない場合は "img/students/nopicture.png" を指定し、alt="" のままにしてください。
+※ width / height には画像の実際のピクセル数を入れてください。
+   読み込み中に文字がずれる（レイアウトシフト）のを防ぐための指定で、
+   表示サイズはCSS側で8remに揃えられます。
 ===================================================================
 -->
 <!DOCTYPE html>
@@ -24,13 +27,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>メンバー | 南山大学藤原研究室</title>
+    <meta name="description" content="南山大学 藤原研究室のメンバー紹介（教員・大学院生・学部生）">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 
-<body>
+<body class="subpage">
 
     <!-- 
     【共通ヘッダー】
@@ -71,7 +75,7 @@
         </div>
     </header>
 
-    <main style="padding-top: var(--header-height);">
+    <main>
         <section id="members" class="page-section">
             <div class="container">
                 <h2 class="section-title"><span class="section-title-en">Members</span><span class="section-title-ja">メンバー</span></h2>
@@ -81,11 +85,11 @@
                 年度更新の際は、以下の各「member-group」ブロックの中身を並び替え、追加・削除してください。
                 -->
                 <div class="members-container">
-                    <div class="member-group fade-in-up">
+                    <div class="member-group">
                         <h3 class="group-title">教員 (Faculty)</h3>
                         <div class="faculty-grid">
                             <div class="faculty-member">
-                                <img src="img/faculty/fujiwara_AP.png" alt="">
+                                <img src="img/faculty/fujiwara_AP.png" width="500" height="500" loading="lazy" decoding="async" alt="藤原 正浩 准教授">
                                 <p>
                                     <a
                                         href="https://porta.nanzan-u.ac.jp/research/view?l=ja&u=104753&a2=1000686&o=affiliation&sm=affiliation&sl=ja&sp=3">藤原
@@ -106,114 +110,114 @@
                             <p>佐藤 花子</p>
                             </div>
                     </div>-->
-                    <div class="member-group fade-in-up">
+                    <div class="member-group">
                         <h3 class="group-title">修士2年 (M2)</h3>
                         <div class="member-grid">
                             <div class="faculty-member">
-                                <img src="img/students/M2/aoyama.jpg" alt="">
+                                <img src="img/students/M2/aoyama.jpg" width="1121" height="1475" loading="lazy" decoding="async" alt="青山 晃平">
                                 <p>青山 晃平</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/M2/inayoshi.jpg" alt="">
+                                <img src="img/students/M2/inayoshi.jpg" width="1108" height="1477" loading="lazy" decoding="async" alt="稲吉 陸仁">
                                 <p>稲吉 陸仁</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/M2/ishibashi.jpg" alt="">
+                                <img src="img/students/M2/ishibashi.jpg" width="572" height="591" loading="lazy" decoding="async" alt="石橋 侑也">
                                 <p>石橋 侑也</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/M2/kanematsu.jpg" alt="">
+                                <img src="img/students/M2/kanematsu.jpg" width="594" height="594" loading="lazy" decoding="async" alt="兼松 祥己">
                                 <p>兼松 祥己</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/M2/mano.jpg" alt="">
+                                <img src="img/students/M2/mano.jpg" width="488" height="658" loading="lazy" decoding="async" alt="眞野 健">
                                 <p>眞野 健</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/M2/tamakushi.jpg" alt="">
+                                <img src="img/students/M2/tamakushi.jpg" width="450" height="600" loading="lazy" decoding="async" alt="玉串 潤">
                                 <p>玉串 潤</p>
                             </div>
                         </div>
                     </div>
-                    <div class="member-group fade-in-up">
+                    <div class="member-group">
                         <h3 class="group-title">修士1年 (M1)</h3>
                         <div class="member-grid">
                             <div class="faculty-member">
-                                <img src="img/students/M1/ito.jpg" alt="">
+                                <img src="img/students/M1/ito.jpg" width="1201" height="1201" loading="lazy" decoding="async" alt="伊藤 頼矢">
                                 <p>伊藤 頼矢</p>
                             </div>
                         </div>
                     </div>
-                    <div class="member-group fade-in-up">
+                    <div class="member-group">
                         <h3 class="group-title">学部4年 (B4)</h3>
                         <div class="member-grid">
                             <div class="faculty-member">
-                                <img src="img/students/B4/inagaki.png" alt="">
+                                <img src="img/students/B4/inagaki.png" width="1242" height="2208" loading="lazy" decoding="async" alt="稲垣 洸也">
                                 <p>稲垣 洸也</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/B4/ishihara.jpg" alt="">
+                                <img src="img/students/B4/ishihara.jpg" width="1365" height="1300" loading="lazy" decoding="async" alt="石原 正章">
                                 <p>石原 正章</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/B4/itsui.jpg" alt="">
+                                <img src="img/students/B4/itsui.jpg" width="1039" height="1276" loading="lazy" decoding="async" alt="井對 裕規">
                                 <p>井對 裕規</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/B4/kato.jpg" alt="">
+                                <img src="img/students/B4/kato.jpg" width="949" height="1179" loading="lazy" decoding="async" alt="加藤 晃基">
                                 <p>加藤 晃基</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/B4/kume.jpg" alt="">
+                                <img src="img/students/B4/kume.jpg" width="1536" height="2048" loading="lazy" decoding="async" alt="粂 美帆">
                                 <p>粂 美帆</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/B4/mori.jpg" alt="">
+                                <img src="img/students/B4/mori.jpg" width="4032" height="3024" loading="lazy" decoding="async" alt="森 悠豊">
                                 <p>森 悠豊</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/B4/nakazima.jpg" alt="">
+                                <img src="img/students/B4/nakazima.jpg" width="1045" height="1567" loading="lazy" decoding="async" alt="中島 結宇">
                                 <p>中島 結宇</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/nopicture.png" alt="">
+                                <img src="img/students/nopicture.png" width="1052" height="1052" loading="lazy" decoding="async" alt="">
                                 <p>杉江 凜太</p>
                             </div>
                         </div>
                     </div>
-                    <div class="member-group fade-in-up">
+                    <div class="member-group">
                         <h3 class="group-title">学部3年 (B3)</h3>
                         <div class="member-grid">
                             <div class="faculty-member">
-                                <img src="img/students/nopicture.png" alt="">
+                                <img src="img/students/nopicture.png" width="1052" height="1052" loading="lazy" decoding="async" alt="">
                                 <p>後藤 優和</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/nopicture.png" alt="">
+                                <img src="img/students/nopicture.png" width="1052" height="1052" loading="lazy" decoding="async" alt="">
                                 <p>今西 陽紀</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/nopicture.png" alt="">
+                                <img src="img/students/nopicture.png" width="1052" height="1052" loading="lazy" decoding="async" alt="">
                                 <p> 川崎 大哉</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/nopicture.png" alt="">
+                                <img src="img/students/nopicture.png" width="1052" height="1052" loading="lazy" decoding="async" alt="">
                                 <p>木村 太郎</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/nopicture.png" alt="">
+                                <img src="img/students/nopicture.png" width="1052" height="1052" loading="lazy" decoding="async" alt="">
                                 <p>鬼頭 央成</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/nopicture.png" alt="">
+                                <img src="img/students/nopicture.png" width="1052" height="1052" loading="lazy" decoding="async" alt="">
                                 <p>中島 悠斗</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/nopicture.png" alt="">
+                                <img src="img/students/nopicture.png" width="1052" height="1052" loading="lazy" decoding="async" alt="">
                                 <p>野村 春陽</p>
                             </div>
                             <div class="faculty-member">
-                                <img src="img/students/nopicture.png" alt="">
+                                <img src="img/students/nopicture.png" width="1052" height="1052" loading="lazy" decoding="async" alt="">
                                 <p>横原 希竜</p>
                             </div>
                         </div>

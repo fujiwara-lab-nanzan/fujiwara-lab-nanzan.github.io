@@ -258,14 +258,21 @@ img {
   height: 100%;
 }
 
+/* ヒーローは1枚ずつ画面いっぱいに見せるため、写真の間の余白は入れない */
+.hero-gallery-section .gallery-container {
+  gap: 0;
+}
+
 .hero-gallery-section .gallery-item {
   flex: 0 0 100%;
+  max-width: 100%;
   padding: 0;
 }
 
 .hero-gallery-section .gallery-item img {
   width: 100%;
   height: 100%;
+  max-width: 100%;
   object-fit: contain;
   border-radius: 0;
   box-shadow: none;
@@ -336,6 +343,7 @@ img {
   margin-bottom: 1.5rem;
 }
 
+/* ※ 2026年7月時点、どのHTMLからも使われていません */
 .hero-tagline {
   font-size: clamp(0.8rem, 1.8vw, 1rem);
   color: rgba(0, 200, 255, 0.85);
@@ -349,6 +357,7 @@ img {
 }
 
 /* スクロールインジケーター */
+/* ※ 2026年7月時点、どのHTMLからも使われていません */
 .hero-scroll-indicator {
   position: absolute;
   bottom: 1.5rem;
@@ -426,6 +435,7 @@ img {
   display: block;
 }
 
+/* ※ 2026年7月時点、どのHTMLからも使われていません */
 .wave-divider-reverse {
   margin-bottom: -1px;
   line-height: 0;
@@ -446,6 +456,7 @@ img {
   background-color: var(--light-bg);
 }
 
+/* ※ 2026年7月時点、どのHTMLからも使われていません */
 .section-alt {
   background-color: var(--light-bg-alt);
   border-top: 1px solid var(--light-border);
@@ -510,6 +521,7 @@ img {
   color: var(--light-text-primary);
 }
 
+/* ※ 2026年7月時点、どのHTMLからも使われていません */
 .content-image {
   border-radius: 6px;
   margin-bottom: 1rem;
@@ -559,6 +571,9 @@ img {
 
 /* ==================================
  * 研究分野セクション（NEW）
+ * ----------------------------------
+ * ※ 2026年7月時点、どのHTMLからも使われていません（研究内容ページ用のスタイル）。
+ *    使う予定がなければ、この節はまとめて削除して構いません。
  * ================================== */
 .research-grid {
   display: grid;
@@ -608,6 +623,10 @@ img {
 
 /* ==================================
  * 数値実績セクション（NEW）
+ * ----------------------------------
+ * ※ 2026年7月時点、どのHTMLからも使われていません。
+ *    script.js の initCountUp()（カウントアップ演出）もこの節とセットで、
+ *    現在は対象要素がないため何も動いていません。
  * ================================== */
 .stats-section {
   background-color: var(--light-bg-alt);
@@ -681,17 +700,20 @@ img {
   box-shadow: 0 0 6px rgba(0, 200, 255, 0.35);
 }
 
+/* 日付は独立した行にする（本文と繋がらないようブロック要素にしています） */
 .news-summary-list .date {
-  display: inline-block;
+  display: block;
   font-family: var(--font-heading);
   font-size: 0.8rem;
   color: var(--accent-deep);
   letter-spacing: 0.03em;
+  line-height: 1.4;
   margin-bottom: 0.2rem;
   font-weight: 500;
 }
 
 .news-summary-list a {
+  display: block;
   color: var(--light-text-secondary);
   font-size: 0.9rem;
   line-height: 1.6;
@@ -735,7 +757,6 @@ img {
   background-color: var(--light-surface);
   padding: 1.5rem;
   border-radius: 8px;
-  border-left: 3px solid var(--accent);
   border: 1px solid var(--light-border);
   border-left: 3px solid var(--accent);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
@@ -764,6 +785,9 @@ img {
   color: var(--light-text-primary);
 }
 
+/* ※ 以下の「さらに表示／折りたたむ」関連スタイル（#extra-news, .toggle-news-*）は
+      2026年7月時点どのHTMLからも使われていません。
+      script.js 内の該当処理も、対象のボタンが無いため動作していません。 */
 #extra-news {
   display: none;
 }
@@ -864,9 +888,13 @@ img {
   gap: 0.75rem;
 }
 
+/* 顔写真は元画像の縦横比がバラバラ（正方形〜縦長）なので、
+   枠を正方形に固定したうえで contain で全体を収める。
+   aspect-ratio を明示することで、読み込み前後で高さが変わりません。 */
 .faculty-member img {
   width: 8rem;
   height: 8rem;
+  aspect-ratio: 1 / 1;
   border-radius: 8px;
   object-fit: contain;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -905,6 +933,44 @@ img {
 }
 
 /* ==================================
+ * 研究設備ページ (equipments.html)
+ * ================================== */
+.equipment-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 768px) {
+  .equipment-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.equipment-item {
+  margin: 0;
+}
+
+/* 写真の縦横比を固定し、どの設備写真も同じ大きさの枠に収める。
+   これがないとキャプションの行数によって写真の位置が上下にずれます。 */
+.equipment-item img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--light-border);
+}
+
+.equipment-item figcaption {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--light-text-secondary);
+  text-align: center;
+}
+
+/* ==================================
  * 研究業績ページ (achievements.html)
  * ================================== */
 .achievements-list {
@@ -914,6 +980,14 @@ img {
 .achievements-list li {
   margin-bottom: 0.75rem;
   color: var(--light-text-secondary);
+}
+
+/* 受賞の強調表示。
+   純粋な赤（#ff0000）は白背景でのコントラスト比が 4.0:1 しかなく
+   WCAG AA の基準（4.5:1）を下回るため、少し濃い赤（5.9:1）にしています。 */
+.achievements-list .award {
+  color: #c62828;
+  font-weight: 600;
 }
 
 /* ==================================
@@ -927,25 +1001,40 @@ img {
 
 .gallery-container {
   display: flex;
+  gap: 1rem;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  scroll-behavior: auto;
+  scroll-behavior: auto; /* スムーススクロールは script.js 側から明示的に指定します */
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .gallery-container::-webkit-scrollbar { display: none; }
 .gallery-container { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* 無限ループの継ぎ目を補正する一瞬だけ script.js が付けるクラス。
+   スナップが効いたままだと補正した位置から引き戻されてしまうため、その間だけ無効化します。 */
+.gallery-container.is-adjusting {
+  scroll-snap-type: none;
+  scroll-behavior: auto;
+}
+
+/* アイテムの幅は指定しません。
+   「高さを固定し、中の画像を width:auto にする」ことで、
+   ブラウザが元画像の縦横比どおりの幅を自動で決めます。
+   そのため画像のサイズがバラバラでも、切れたり隙間ができたりしません。 */
 .gallery-item {
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  height: 20rem;
+  max-width: 100%; /* 極端な横長画像でも表示枠からはみ出させない */
   scroll-snap-align: center;
-  padding: 0.5rem;
 }
 
 .gallery-item img {
-  width: 100%;
-  height: 20rem;
-  object-fit: cover;
+  width: auto;
+  height: 100%;
+  max-width: 100%;
+  object-fit: contain; /* cover だと写真の端が切れるため contain */
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
@@ -1009,6 +1098,16 @@ img {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
+/* 地図（iframe）は画面幅に合わせて縮める。
+   img と違い iframe には max-width:100% が効かないため、個別に指定が必要です。
+   これがないと HTML の width="600" のまま、スマホで右側が見切れます。 */
+.map-container iframe {
+  display: block;
+  width: 100%;
+  height: clamp(260px, 60vw, 450px);
+  border: 0;
+}
+
 /* ==================================
  * フッター（ダークゾーン）
  * ================================== */
@@ -1033,6 +1132,8 @@ img {
 
 /* ==================================
  * 同心円パルス（超音波発振イメージ）
+ * ----------------------------------
+ * ※ 2026年7月時点、どのHTMLからも使われていません。
  * ================================== */
 .ultrasound-pulse {
   position: relative;
@@ -1060,6 +1161,8 @@ img {
 
 /* ==================================
  * ボタンスタイル
+ * ----------------------------------
+ * ※ .btn-primary は 2026年7月時点、どのHTMLからも使われていません。
  * ================================== */
 .btn-primary {
   display: inline-flex;
@@ -1088,13 +1191,18 @@ img {
 /* ==================================
  * サブページ用（ヒーローなし）
  * ================================== */
-/* ヒーローがないページではmainにpadding-topを追加して固定ヘッダーとの重なりを防ぐ */
-body:not(:has(.hero-gallery-section)) main {
+/* ヒーローがないページ（index.html 以外）は <body class="subpage"> を付けています。
+   以前は :has() セレクタと各ページの style 属性で二重に指定していましたが、
+   :has() 未対応のブラウザで「ヘッダーが透明のまま本文と重なる」危険があったため、
+   クラス指定に一本化しました。 */
+
+/* 固定ヘッダーと本文が重ならないよう余白をとる */
+.subpage main {
   padding-top: var(--header-height);
 }
 
-/* ヒーローがないページではヘッダーを初期状態で不透明にする */
-body:not(:has(.hero-gallery-section)) .site-header {
+/* ヒーローがないページではヘッダーを初期状態から不透明にする */
+.subpage .site-header {
   background-color: rgba(10, 14, 39, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -1169,6 +1277,13 @@ body:not(:has(.hero-gallery-section)) .site-header {
     min-height: 400px;
   }
 
+  /* スマホでは表示幅が狭いため、写真の高さを下げて
+     横長写真でも1枚まるごと収まるようにする（上下に余白が出るのを防ぐ）。
+     ヒーローは height:100% の指定が優先されるため影響しません。 */
+  .gallery-item {
+    height: 15rem;
+  }
+
   .research-grid {
     grid-template-columns: 1fr;
   }
@@ -1184,5 +1299,32 @@ body:not(:has(.hero-gallery-section)) .site-header {
 
   :root {
     --section-padding: 3.5rem;
+  }
+}
+
+/* ==================================
+ * 動きを減らす設定への対応
+ * ==================================
+ * OS側で「視差効果を減らす／アニメーションを減らす」を有効にしている方には、
+ * 自動で動く表現を止めます（乗り物酔いや眩暈の原因になるため）。
+ * 自動スクロールと波形アニメーションの停止は script.js 側で行っています。 */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .gallery-container {
+    scroll-behavior: auto;
+  }
+
+  /* アニメーションとトランジションを事実上無効化する
+     （0にすると完了イベントが発火しない実装があるため、ごく短い時間にしています） */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

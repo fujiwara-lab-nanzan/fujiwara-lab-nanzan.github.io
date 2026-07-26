@@ -8,11 +8,14 @@
 - 研究設備アイテム（画像と名前）の追加・編集・削除（51行目〜）
 
 【設備の追加方法】
-<div class="member-grid"> の中に、以下のブロックを追加してください。
-  <p>
-      <img src="画像のパス" alt="設備名" style="max-width: 100%; height: auto;">
-      設備名
-  </p>
+<div class="equipment-grid"> の中に、以下のブロックを追加してください。
+  <figure class="equipment-item">
+      <img src="画像のパス" width="画像の横幅" height="画像の高さ" loading="lazy" decoding="async" alt="設備名">
+      <figcaption>設備名</figcaption>
+  </figure>
+※ width / height には画像の実際のピクセル数を入れてください。
+   読み込み中に文字がずれる（レイアウトシフト）のを防ぐための指定です。
+   写真の大きさはCSS側で揃えるので、この数値が表示サイズになるわけではありません。
 ===================================================================
 -->
 <!DOCTYPE html>
@@ -21,12 +24,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>研究設備 | 南山大学藤原研究室</title>
+    <meta name="description" content="南山大学 藤原研究室の研究設備（超音波フェーズドアレイ、計測機器など）">
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="subpage">
     <!-- 
     【共通ヘッダー】
     メニュー項目を増やしたり変更したりする場合は、このブロックおよび下方の
@@ -63,7 +67,7 @@
         </div>
     </header>
 
-    <main style="padding-top: var(--header-height);">
+    <main>
         <section id="prospectives-content" class="page-section">
             <div class="container">
                 <h2 class="section-title"><span class="section-title-en">Equipment</span><span class="section-title-ja">研究設備</span></h2>
@@ -73,35 +77,62 @@
                 以下の「member-grid」内の各 <p> ブロックを編集・複製してください。
                 -->
                 <div class="content-block-container">
-                    <div class="member-group fade-in-up">
+                    <div class="member-group">
                         <!--<h3 class="group-title"> タイトル</h3> -->
-                        <div class="member-grid">
-                            <p><img src="img/equipments/AUTD3.jpg" alt="" style="max-width: 100%; height: auto;">
-                            超音波フェーズドアレイ(AUTD3)</p>
-                            
-                            <p><img src="img/equipments/3Dprinter.jpg" alt="" style="max-width: 100%; height: auto;">
-                            3Dプリンター</p>
+                        <div class="equipment-grid">
+                            <figure class="equipment-item">
+                                <img src="img/equipments/AUTD3.jpg" width="5712" height="4284" loading="lazy"
+                                     decoding="async" alt="超音波フェーズドアレイ(AUTD3)">
+                                <figcaption>超音波フェーズドアレイ(AUTD3)</figcaption>
+                            </figure>
 
-                            <p><img src="img/equipments/DCpower.jpg" alt="" style="max-width: 100%; height: auto;">
-                            直流安定化電源</p>
-                            
-                            <p><img src="img/equipments/laser.jpg" alt="" style="max-width: 100%; height: auto;">
-                            レーザー墨出し器</p>
+                            <figure class="equipment-item">
+                                <img src="img/equipments/3Dprinter.jpg" width="5712" height="4284" loading="lazy"
+                                     decoding="async" alt="3Dプリンター">
+                                <figcaption>3Dプリンター</figcaption>
+                            </figure>
 
-                            <p><img src="img/equipments/microscope.jpg" alt="" style="max-width: 100%; height: auto;">
-                            ディジタル顕微鏡</p>
-                            
-                            <p><img src="img/equipments/multimeter.jpg" alt="" style="max-width: 100%; height: auto;">
-                            ディジタルマルチメータ</p>
+                            <figure class="equipment-item">
+                                <img src="img/equipments/DCpower.jpg" width="5712" height="4284" loading="lazy"
+                                     decoding="async" alt="直流安定化電源">
+                                <figcaption>直流安定化電源</figcaption>
+                            </figure>
 
-                            <p><img src="img/equipments/oscilloscope.jpg" alt="" style="max-width: 100%; height: auto;">
-                            オシロスコープ</p>
-                            
-                            <p><img src="img/equipments/thermography.jpg" alt="" style="max-width: 100%; height: auto;">
-                            サーモグラフィ</p>
+                            <figure class="equipment-item">
+                                <img src="img/equipments/laser.jpg" width="5712" height="4284" loading="lazy"
+                                     decoding="async" alt="レーザー墨出し器">
+                                <figcaption>レーザー墨出し器</figcaption>
+                            </figure>
 
-                            <p><img src="img/equipments/camera.jpg" alt="" style="max-width: 100%; height: auto;">
-                            超音波カメラ</p>
+                            <figure class="equipment-item">
+                                <img src="img/equipments/microscope.jpg" width="5712" height="4284" loading="lazy"
+                                     decoding="async" alt="ディジタル顕微鏡">
+                                <figcaption>ディジタル顕微鏡</figcaption>
+                            </figure>
+
+                            <figure class="equipment-item">
+                                <img src="img/equipments/multimeter.jpg" width="5712" height="4284" loading="lazy"
+                                     decoding="async" alt="ディジタルマルチメータ">
+                                <figcaption>ディジタルマルチメータ</figcaption>
+                            </figure>
+
+                            <figure class="equipment-item">
+                                <img src="img/equipments/oscilloscope.jpg" width="5712" height="4284" loading="lazy"
+                                     decoding="async" alt="オシロスコープ">
+                                <figcaption>オシロスコープ</figcaption>
+                            </figure>
+
+                            <figure class="equipment-item">
+                                <img src="img/equipments/thermography.jpg" width="5712" height="4284" loading="lazy"
+                                     decoding="async" alt="サーモグラフィ">
+                                <figcaption>サーモグラフィ</figcaption>
+                            </figure>
+
+                            <figure class="equipment-item">
+                                <img src="img/equipments/camera.jpg" width="5712" height="4284" loading="lazy"
+                                     decoding="async" alt="超音波カメラ">
+                                <figcaption>超音波カメラ</figcaption>
+                            </figure>
                         </div>
                     </div>
                 </div>

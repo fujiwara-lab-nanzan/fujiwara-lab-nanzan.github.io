@@ -70,129 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-     // --- ギャラリーの無限ループ & 自動スクロール  ---
-    const galleryWrapper = document.querySelector('.gallery-wrapper');
-    if (galleryWrapper) {
-        const galleryContainer = document.getElementById('gallery-container');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        let autoScrollInterval;
-
-        if (galleryContainer && galleryContainer.children.length > 0) {
-            const originalItems = Array.from(galleryContainer.children);
-            const itemCount = originalItems.length;
-            let scrollTimeout;
-
-            // 画像のアスペクト比に基づいて各gallery-itemの幅を動的に設定
-            const GALLERY_IMG_HEIGHT = 320; // 20rem = 320px（1rem=16px）
-            const adjustGalleryItemWidths = () => {
-                const items = galleryContainer.querySelectorAll('.gallery-item');
-                items.forEach(item => {
-                    const img = item.querySelector('img');
-                    if (img && img.naturalWidth && img.naturalHeight) {
-                        const aspectRatio = img.naturalWidth / img.naturalHeight;
-                        const calculatedWidth = GALLERY_IMG_HEIGHT * aspectRatio;
-                        item.style.width = calculatedWidth + 'px';
-                    } else if (img) {
-                        // 画像がまだ読み込まれていない場合
-                        img.addEventListener('load', () => {
-                            if (img.naturalWidth && img.naturalHeight) {
-                                const aspectRatio = img.naturalWidth / img.naturalHeight;
-                                const calculatedWidth = GALLERY_IMG_HEIGHT * aspectRatio;
-                                item.style.width = calculatedWidth + 'px';
-                            }
-                        }, { once: true });
-                    }
-                });
-            };
-
-            // 平均アイテム幅を取得する関数
-            const getCurrentItemWidth = () => {
-                const items = galleryContainer.querySelectorAll('.gallery-item');
-                if (items.length === 0) return 0;
-                let totalWidth = 0;
-                items.forEach(item => totalWidth += item.offsetWidth);
-                return totalWidth / items.length;
-            };
-
-            const setupGallery = () => {
-                galleryContainer.innerHTML = '';
-                originalItems.forEach(item => galleryContainer.appendChild(item.cloneNode(true)));
-                
-                const allItems = Array.from(galleryContainer.children);
-                allItems.forEach(item => galleryContainer.appendChild(item.cloneNode(true)));
-                allItems.slice().reverse().forEach(item => galleryContainer.prepend(item.cloneNode(true)));
-                
-                // 画像のサイズに合わせて枠を調整
-                adjustGalleryItemWidths();
-
-                galleryContainer.style.scrollBehavior = 'auto';
-
-                // 準備が整うのを待ってからスクロール位置を設定
-                setTimeout(() => {
-                    const itemWidth = getCurrentItemWidth(); // ← 実行直前に幅を再計算
-                    if (itemWidth > 0) {
-                        galleryContainer.scrollLeft = itemWidth * itemCount;
-                    }
-                    galleryContainer.style.scrollBehavior = 'smooth';
-                }, 200); // 画像読み込み後に正確な幅が反映されるよう待機
-            };
-            
-            window.addEventListener('load', setupGallery);
-            window.addEventListener('resize', () => {
-                clearInterval(autoScrollInterval);
-                setupGallery();
-                startAutoScroll();
-            });
-
-            const handleScroll = () => {
-                clearTimeout(scrollTimeout);
-                scrollTimeout = setTimeout(() => {
-                    const currentItemWidth = getCurrentItemWidth();
-                    if (currentItemWidth === 0) return;
-
-                    const scrollLeft = galleryContainer.scrollLeft;
-                    const totalItemWidth = currentItemWidth * itemCount;
-
-                    // 無限スクロールのつなぎ目処理
-                    if (scrollLeft >= totalItemWidth * 2 - currentItemWidth / 2) {
-                        galleryContainer.style.scrollBehavior = 'auto';
-                        galleryContainer.scrollLeft -= totalItemWidth;
-                        setTimeout(() => galleryContainer.style.scrollBehavior = 'smooth', 50);
-                    }
-                    if (scrollLeft <= 0 + currentItemWidth / 2) {
-                        galleryContainer.style.scrollBehavior = 'auto';
-                        galleryContainer.scrollLeft += totalItemWidth;
-                        setTimeout(() => galleryContainer.style.scrollBehavior = 'smooth', 50);
-                    }
-                }, 150);
-            };
-
-            const startAutoScroll = () => {
-                stopAutoScroll();
-                autoScrollInterval = setInterval(() => {
-                    galleryContainer.scrollBy({ left: getCurrentItemWidth(), behavior: 'smooth' });
-                }, 5000); //スクロール間隔：5秒
-            };
-
-            const stopAutoScroll = () => {
-                clearInterval(autoScrollInterval);
-            };
-
-            nextBtn.addEventListener('click', () => {
-                galleryContainer.scrollBy({ left: getCurrentItemWidth(), behavior: 'smooth' });
-            });
-            prevBtn.addEventListener('click', () => {
-                galleryContainer.scrollBy({ left: -getCurrentItemWidth(), behavior: 'smooth' });
-            });
-            galleryContainer.addEventListener('scroll', handleScroll, { passive: true });
-            
-            galleryWrapper.addEventListener('mouseenter', stopAutoScroll);
-            galleryWrapper.addEventListener('mouseleave', startAutoScroll);
-
-            startAutoScroll();
-        }
-    }
+    // --- ギャラリーの無限ループ & 自動スクロール  ---
+    initGallery();
 
     // --- 動的トピックス生成 ---
     initDynamicNews();
@@ -226,6 +105,250 @@ function initHeaderScroll() {
 
 
 // ==================================
+// ギャラリー（無限ループ・自動スクロール）
+// ==================================
+// index.html のヒーローと gallery.html のスライドショーで共用しています。
+//
+// 【設計方針】
+// ・アイテムの幅は JavaScript では一切計算しません。
+//   CSS 側で「高さ固定 ＋ 画像 width:auto」にしてあるため、
+//   ブラウザが元画像の縦横比どおりの幅を自動で決めます。
+//   → 画像のサイズがバラバラでも写真が切れず、送り幅もずれません。
+// ・移動先は必ず「実在するアイテムの中央位置」を実測して指定します。
+//   （以前は全アイテムの平均幅ずつ送っていたため、幅が不揃いだと
+//     スナップ位置と一致せず、カクつき・引き戻しの原因になっていました）
+function initGallery() {
+    const wrapper = document.querySelector('.gallery-wrapper');
+    if (!wrapper) return;
+
+    const container = document.getElementById('gallery-container');
+    if (!container || container.children.length === 0) return;
+
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+
+    const AUTO_SCROLL_MS = 5000; // 自動送りの間隔（ミリ秒）
+    const SET_COUNT = 3;         // 「前・本体・後ろ」の3セットを並べて無限ループさせる
+
+    // 元の並びを控えておく（以降はこのクローンだけを使う）
+    const originalItems = Array.from(container.children).map(node => node.cloneNode(true));
+    const itemCount = originalItems.length;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    let autoScrollTimer = null;
+    let lastWrapperWidth = wrapper.clientWidth;
+    let isAdjusting = false;
+
+    // --- 位置の計測 ---------------------------------------------------
+    // アイテムとコンテナは同じ基準要素からの座標なので、差を取ると
+    // コンテナ内での位置（＝scrollLeft と同じ座標系）になります。
+    const offsetOf = (item) => item.offsetLeft - container.offsetLeft;
+
+    // 1セット分の幅 ＝「後ろセットの先頭」と「本体セットの先頭」の距離。
+    // 実測なので、アイテム幅が不揃いでも、余白（gap）があっても正確です。
+    //
+    // この値は保持せず、必要になるたびに測り直します。
+    // 保持してしまうと、画面幅の変化を取りこぼしたときに古い幅で計算し続け、
+    // 継ぎ目の補正が効かなくなって端で動かなくなる（行き止まりになる）ためです。
+    const measureSetWidth = () => {
+        const items = container.children;
+        if (items.length < itemCount * SET_COUNT) return 0;
+        return offsetOf(items[itemCount * 2]) - offsetOf(items[itemCount]);
+    };
+
+    // 指定アイテムが中央に来る scrollLeft（CSS の scroll-snap-align: center に合わせる）
+    const targetFor = (item) => {
+        const max = container.scrollWidth - container.clientWidth;
+        const left = offsetOf(item) - (container.clientWidth - item.offsetWidth) / 2;
+        return Math.max(0, Math.min(max, left));
+    };
+
+    // --- スクロール操作 -------------------------------------------------
+    // スクロールスナップ（scroll-snap-type: x mandatory）は、指で操作したときに
+    // 写真がぴたりと止まる利点がある一方で、JavaScript からの移動指示を横取りして
+    // 元の位置へ引き戻してしまいます。これが「カクつく・途中で止まる」原因でした。
+    // そのため、JS が動かしている間だけスナップを切り、
+    // 動きが落ち着いてから元に戻すようにしています。
+    let snapReleaseTimer = null;
+
+    const suspendSnap = () => {
+        isAdjusting = true;
+        container.classList.add('is-adjusting');
+        clearTimeout(snapReleaseTimer);
+    };
+
+    const resumeSnap = (delay) => {
+        clearTimeout(snapReleaseTimer);
+        snapReleaseTimer = setTimeout(() => {
+            container.classList.remove('is-adjusting');
+            isAdjusting = false;
+        }, delay);
+    };
+
+    // アニメーションなしで即座に移動する（継ぎ目の補正や初期配置で使用）
+    const jumpTo = (left) => {
+        suspendSnap();
+        container.scrollLeft = left;
+        resumeSnap(0);
+    };
+
+    // 滑らかに移動する。
+    // ブラウザやOSの設定でスムーススクロールが無効になっている環境では
+    // scrollTo({behavior:'smooth'}) が何も起こさず、写真が全く動かなくなります。
+    // 動き出さなかった場合は即時移動へ切り替えて、必ず送れるようにしています。
+    const glideTo = (left) => {
+        const from = container.scrollLeft;
+        if (Math.abs(left - from) < 1) return;
+
+        if (reduceMotion.matches) {
+            jumpTo(left);
+            return;
+        }
+
+        suspendSnap();
+        container.scrollTo({ left: left, behavior: 'smooth' });
+        setTimeout(() => {
+            if (Math.abs(container.scrollLeft - from) < 1) container.scrollLeft = left;
+        }, 120);
+        resumeSnap(700); // スムーススクロールが終わる頃にスナップを戻す
+    };
+
+    // いま画面中央にいちばん近いアイテムの番号
+    const currentIndex = () => {
+        const center = container.scrollLeft + container.clientWidth / 2;
+        const items = container.children;
+        let best = 0;
+        let bestDistance = Infinity;
+        for (let i = 0; i < items.length; i++) {
+            const distance = Math.abs(offsetOf(items[i]) + items[i].offsetWidth / 2 - center);
+            if (distance < bestDistance) {
+                bestDistance = distance;
+                best = i;
+            }
+        }
+        return best;
+    };
+
+    // 表示位置を常に「本体セット」の範囲へ引き戻す。
+    // 3セットとも中身が同じなので、1セット分ちょうど動かせば見た目は変わりません。
+    const normalize = () => {
+        const setWidth = measureSetWidth();
+        if (setWidth <= 0) return;
+        let left = container.scrollLeft;
+        while (left < setWidth * 0.5) left += setWidth;
+        while (left >= setWidth * 1.5) left -= setWidth;
+        if (Math.abs(left - container.scrollLeft) > 0.5) jumpTo(left);
+    };
+
+    // 1枚送る。先に本体セットへ戻してから動かすので、継ぎ目でも止まりません。
+    const step = (direction) => {
+        normalize();
+        const items = container.children;
+        const index = Math.max(0, Math.min(items.length - 1, currentIndex() + direction));
+        glideTo(targetFor(items[index]));
+    };
+
+    // --- 自動送り -------------------------------------------------------
+    const stopAutoScroll = () => {
+        clearInterval(autoScrollTimer);
+        autoScrollTimer = null;
+    };
+
+    const startAutoScroll = () => {
+        stopAutoScroll();
+        // OSの「視差効果を減らす／アニメーションを減らす」設定時は自動送りしない
+        if (reduceMotion.matches) return;
+        autoScrollTimer = setInterval(() => step(1), AUTO_SCROLL_MS);
+    };
+
+    // --- 組み立て -------------------------------------------------------
+    const build = () => {
+        container.innerHTML = '';
+        for (let set = 0; set < SET_COUNT; set++) {
+            originalItems.forEach(item => container.appendChild(item.cloneNode(true)));
+        }
+    };
+
+    // 本体セットの先頭に位置を合わせ直す
+    const layout = () => {
+        const items = container.children;
+        if (items.length > itemCount) jumpTo(targetFor(items[itemCount]));
+    };
+
+    // 画像の読み込み完了を待つ（幅が確定してから位置を決めるため）
+    const whenImagesReady = () => {
+        const pending = Array.from(container.querySelectorAll('img')).filter(img => !img.complete);
+        if (pending.length === 0) return Promise.resolve();
+        return Promise.all(pending.map(img => new Promise(resolve => {
+            img.addEventListener('load', resolve, { once: true });
+            img.addEventListener('error', resolve, { once: true });
+        })));
+    };
+
+    build();
+    layout(); // HTML の width/height 属性から縦横比が分かるため、この時点でほぼ正確
+    whenImagesReady().then(() => {
+        layout(); // 実寸で測り直し
+        startAutoScroll();
+    });
+
+    // --- イベント -------------------------------------------------------
+    if (nextBtn) nextBtn.addEventListener('click', () => { step(1); startAutoScroll(); });
+    if (prevBtn) prevBtn.addEventListener('click', () => { step(-1); startAutoScroll(); });
+
+    // 指やトラックパッドで動かしたときは、スクロールが止まってから位置を整える
+    if ('onscrollend' in window) {
+        container.addEventListener('scrollend', () => { if (!isAdjusting) normalize(); });
+    } else {
+        let settleTimer;
+        container.addEventListener('scroll', () => {
+            clearTimeout(settleTimer);
+            settleTimer = setTimeout(() => { if (!isAdjusting) normalize(); }, 120);
+        }, { passive: true });
+    }
+
+    // 端まで一気に振り切られた場合は待たずに補正する（行き止まりを作らない）
+    container.addEventListener('scroll', () => {
+        if (isAdjusting) return;
+        const max = container.scrollWidth - container.clientWidth;
+        if (container.scrollLeft <= 0 || container.scrollLeft >= max - 0.5) normalize();
+    }, { passive: true });
+
+    wrapper.addEventListener('mouseenter', stopAutoScroll);
+    wrapper.addEventListener('mouseleave', startAutoScroll);
+    wrapper.addEventListener('focusin', stopAutoScroll);
+    wrapper.addEventListener('focusout', startAutoScroll);
+
+    // 非表示のタブで自動送りが溜まると、戻ったときに一気に動いてしまうため止める
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stopAutoScroll();
+        else startAutoScroll();
+    });
+
+    // リサイズ時は DOM を作り直さず、位置だけ合わせ直す。
+    // スマホはアドレスバーの出入りだけでも resize が発火するため、
+    // 「横幅が実際に変わったとき」に限定しないと縦スクロール中にリセットされてしまう。
+    let resizeTimer;
+    const handleResize = () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            const width = wrapper.clientWidth;
+            if (width === lastWrapperWidth) return; // 高さだけの変化では何もしない
+            lastWrapperWidth = width;
+            layout();
+        }, 200);
+    };
+
+    window.addEventListener('resize', handleResize);
+    // resize イベントを取りこぼす場面（表示領域だけが変わる等）にも追従させる
+    if ('ResizeObserver' in window) new ResizeObserver(handleResize).observe(wrapper);
+
+    reduceMotion.addEventListener('change', startAutoScroll);
+}
+
+
+// ==================================
 // 超音波 波動（Canvas）アニメーション
 // ==================================
 // 正弦波（サイン波）を複数重ね合わせ、干渉させることで
@@ -235,17 +358,47 @@ function initWaveCanvas() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
+    // 表示上の大きさ（CSSピクセル）。描画計算はこの値を基準に行います。
+    let width = 0;
+    let height = 0;
+
     function resize() {
-        canvas.width = canvas.parentElement.offsetWidth;
-        canvas.height = canvas.parentElement.offsetHeight;
+        width = canvas.parentElement.offsetWidth;
+        height = canvas.parentElement.offsetHeight;
+
+        // 高解像度ディスプレイでは実ピクセル数が CSS ピクセルの整数倍あるため、
+        // 等倍のまま描くと波線がぼやけます。画面の倍率に合わせて実寸を確保します。
+        const ratio = window.devicePixelRatio || 1;
+        canvas.width = Math.round(width * ratio);
+        canvas.height = Math.round(height * ratio);
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
     }
     resize();
     window.addEventListener('resize', resize);
 
+    // 「動きを減らす」設定の環境ではアニメーションさせず、静止画として一度だけ描く
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    // ヒーローが画面外にあるときは描画を止める（スマホの電池消費を抑えるため）
+    let isVisible = true;
+    if ('IntersectionObserver' in window) {
+        new IntersectionObserver((entries) => {
+            isVisible = entries[0].isIntersecting;
+        }).observe(canvas.parentElement);
+    }
+
     let time = 0;
 
     function drawWaves() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // 停止中はフレームを進めず、次の確認だけ予約する
+        if (!isVisible || document.hidden) {
+            requestAnimationFrame(drawWaves);
+            return;
+        }
+
+        ctx.clearRect(0, 0, width, height);
 
         // 複数の波を重ね合わせて超音波の干渉パターンを表現
         const waves = [
@@ -261,8 +414,8 @@ function initWaveCanvas() {
             ctx.strokeStyle = wave.color;
             ctx.lineWidth = wave.lineWidth;
 
-            for (let x = 0; x < canvas.width; x += 2) {
-                const y = canvas.height * wave.yOffset
+            for (let x = 0; x < width; x += 2) {
+                const y = height * wave.yOffset
                     + Math.sin(x * wave.frequency + time * wave.speed) * wave.amplitude
                     + Math.sin(x * wave.frequency * 2.5 + time * wave.speed * 1.5) * wave.amplitude * 0.3;
 
@@ -275,7 +428,8 @@ function initWaveCanvas() {
             ctx.stroke();
         });
 
-        time += 1;
+        // 「動きを減らす」設定のときは時間を進めず、波を静止させる
+        if (!reduceMotion.matches) time += 1;
         requestAnimationFrame(drawWaves);
     }
 
@@ -341,7 +495,9 @@ function initDynamicNews() {
         const latestNews = NEWS_DATA.slice(0, 5);
         latestNews.forEach(item => {
             const li = document.createElement('li');
-            li.innerHTML = `<span class="date">${item.date}</span><a href="news.html">${item.title}</a>`;
+            // 日付と本文はそれぞれブロック要素にして、確実に行を分ける
+            // （news.html 側の .news-item と同じ構造にそろえています）
+            li.innerHTML = `<p class="date">${item.date}</p><a class="title" href="news.html">${item.title}</a>`;
             indexNewsList.appendChild(li);
         });
     }
