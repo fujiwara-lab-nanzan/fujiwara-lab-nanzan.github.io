@@ -1078,7 +1078,7 @@ img {
   position: relative;
   width: 100%;
   /* JS が実測して上書きします。JS 実行前の高さのブレ（レイアウトシフト）を防ぐための初期値 */
-  height: clamp(260px, 52vw, 440px);
+  height: clamp(280px, 68vw, 620px);
   /* 回り込んだカードが画面外へはみ出して横スクロールが出ないように切り取る */
   overflow: hidden;
   /* 縦方向のページスクロールは残しつつ、横方向のスワイプだけJSで扱う */

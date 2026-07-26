@@ -377,9 +377,22 @@ function initRingGallery() {
 
     const AUTO_SPEED = 0.18;     // 自動回転の速さ（1フレームあたりの度数）
     const DRAG_THRESHOLD = 8;    // これを超えて動かされたら「ドラッグ」と判定する距離（px）
-    const DEG_PER_PX = 0.3;      // 指・マウスの移動量を回転角へ換算する係数
+    const DEG_PER_PX = 0.3;      // マウスでドラッグしたときの、移動量→回転角の換算係数
+    // 指でのスワイプはマウスの2倍にする。画面が狭く大きく動かせないため、
+    // 半分の移動量で写真1枚ぶん進むようにしています。
+    const DEG_PER_PX_TOUCH = 0.6;
     const EASE = 0.12;           // 目標角度へ近づく速さ（スナップのなめらかさ）
     const stepDeg = 360 / count; // 写真1枚ぶんの角度
+
+    // --- 写真の大きさを調整したいときはこの5つを変えてください -----------------
+    const MAX_CARD_HEIGHT = 544;   // 写真の高さの上限（px）。大きくすると写真が大きくなります
+    const HEIGHT_BY_WIDTH = 0.535; // 表示エリアの幅に対する写真の高さの割合（スマホで効きやすい）
+    const HEIGHT_BY_SCREEN = 0.528; // 画面の高さに対する写真の高さの割合（PCで効きやすい）
+    const MAX_CARD_WIDTH = 0.88;   // 表示エリアの幅に対する、写真1枚の幅の上限
+    // 回転中に横のカードが表示エリアからどれだけはみ出してよいか（1.0 = まったく出さない）。
+    // 奥にある写真の端が少し切れるのを許すことで、正面の写真を大きく見せられます。
+    const SWING_TOLERANCE = 1.45;
+    // -------------------------------------------------------------------------
 
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -489,7 +502,7 @@ function initRingGallery() {
 
     // 指定した高さを基準にしたときの、各カードの寸法とリングの半径を求める
     const planLayout = (baseHeight, stageWidth) => {
-        const maxWidth = stageWidth * 0.72;
+        const maxWidth = stageWidth * MAX_CARD_WIDTH;
         const sizes = [];
         let widest = 0;
 
@@ -512,7 +525,9 @@ function initRingGallery() {
         return {
             sizes: sizes,
             widest: widest,
-            radius: Math.max(minRadius * 1.1, widest * 0.75)
+            // 半径が大きいほど横のカードが外へ張り出し、そのぶん写真を小さくせざるを得ません。
+            // 重ならない最小限（弦の長さ＝カード幅）を基準にして、無駄に広げないようにします。
+            radius: Math.max(minRadius * 1.1, widest * 0.55)
         };
     };
 
@@ -538,17 +553,28 @@ function initRingGallery() {
         const perspective = parseFloat(getComputedStyle(stage).perspective) || 1100;
 
         // 画面の幅と高さの両方を見て、写真の基準サイズを決める
-        let baseHeight = Math.max(120, Math.min(stageWidth * 0.5, window.innerHeight * 0.45, 340));
-        const allowed = stageWidth / 2;
+        let baseHeight = Math.max(140, Math.min(
+            stageWidth * HEIGHT_BY_WIDTH,
+            window.innerHeight * HEIGHT_BY_SCREEN,
+            MAX_CARD_HEIGHT
+        ));
+        const allowed = (stageWidth / 2) * SWING_TOLERANCE;
 
         let plan = planLayout(baseHeight, stageWidth);
 
-        // 回転の途中で枠からはみ出す（＝写真の端が切れる）場合は、収まるまで縮める。
+        // 回転の途中で横へ張り出しすぎる場合は、収まるまで縮める。
         // 張り出し量はサイズにほぼ比例するので、2回の調整で十分収束します。
         for (let n = 0; n < 2; n++) {
             const extent = maxExtent(plan.radius, plan.widest, perspective);
             if (extent <= allowed) break;
-            baseHeight = Math.max(110, baseHeight * (allowed / extent));
+            baseHeight = Math.max(120, baseHeight * (allowed / extent));
+            plan = planLayout(baseHeight, stageWidth);
+        }
+
+        // 正面に来た写真だけは、どんな場合でも絶対に切れないようにする。
+        // （横のカードは SWING_TOLERANCE のぶんだけ端が切れることを許容しています）
+        if (plan.widest > stageWidth) {
+            baseHeight = baseHeight * (stageWidth / plan.widest);
             plan = planLayout(baseHeight, stageWidth);
         }
 
@@ -561,7 +587,7 @@ function initRingGallery() {
                 'translate(-50%, -50%) rotateY(' + (i * stepDeg) + 'deg) translateZ(' + radius + 'px)';
         }
 
-        gallery.style.height = Math.round(baseHeight * 1.28) + 'px';
+        gallery.style.height = Math.round(baseHeight * 1.18) + 'px';
         lastRendered = null; // 次の描画を必ず走らせる
     };
 
@@ -607,6 +633,7 @@ function initRingGallery() {
     let dragging = false;
     let movedEnough = false;
     let modeBeforeDrag = 'auto';
+    let dragDegPerPx = DEG_PER_PX; // 操作の種類（指かマウスか）に応じて切り替える
 
     gallery.addEventListener('pointerdown', (e) => {
         if (e.button > 0) return;
@@ -618,6 +645,8 @@ function initRingGallery() {
         startX = e.clientX;
         startY = e.clientY;
         startAngle = angle;
+        // 指でのスワイプはマウスより感度を上げる
+        dragDegPerPx = (e.pointerType === 'touch') ? DEG_PER_PX_TOUCH : DEG_PER_PX;
         // ポインタを捕捉すると以降の target が gallery になるため、
         // 押した瞬間にどの写真だったかをここで覚えておく
         downCard = e.target.closest('.ring-card');
@@ -643,7 +672,7 @@ function initRingGallery() {
         }
 
         // 指やマウスの動きにそのまま追従させる（慣性で反発しないように）
-        angle = startAngle + dx * DEG_PER_PX;
+        angle = startAngle + dx * dragDegPerPx;
         // 手動操作中は次のフレームを待たずに描き直し、遅れを感じさせないようにする
         render();
         lastRendered = angle;
