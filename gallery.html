@@ -5,15 +5,23 @@
 このファイルは「ギャラリー（写真館）」ページのレイアウトと内容を定義しています。
 
 【編集可能な主な箇所】
-- スライドショーに表示する画像の追加・変更（50行目〜）
+- リングギャラリーに表示する画像の追加・変更
 
 【画像の追加方法】
-<div id="gallery-container" class="gallery-container"> の中に、
-以下のブロックを追加してください。
-  <div class="gallery-item">
-      <img src="画像のパス" alt="説明文（任意）">
+<div class="ring" id="ring"> の中に、以下のブロックを追加してください。
+  <div class="ring-card" role="button" tabindex="0">
+      <img src="画像のパス" width="画像の横幅" height="画像の高さ" alt="写真の説明">
   </div>
-※ 追加した画像のアスペクト比に合わせて、幅がJavaScriptによって自動調整されます。
+※ width / height には画像の実際のピクセル数を入れてください。
+   写真の縦横比どおりに枠が作られるため、写真が切れることはありません。
+   表示の大きさと配置（円周上の角度・奥行き）はJavaScriptが自動計算します。
+※ 写真は円周上に均等な角度で並びます。枚数を増やすほどリングらしい見た目になります。
+
+【操作方法】
+- 何も操作しなければ自動で回転し続けます
+- 写真をクリック／タップ → その写真が正面に来て停止（もう一度押すと自動回転に戻ります）
+- 左右の矢印ボタン → 隣の写真が正面に来て停止
+- 左右にドラッグ／スワイプ、横方向のホイール → 手動で回転（離すと近い写真に止まります）
 ===================================================================
 -->
 <!DOCTYPE html>
@@ -70,36 +78,39 @@
         <section id="gallery" class="page-section">
             <div class="container">
                 <h2 class="section-title"><span class="section-title-en">Gallery</span><span class="section-title-ja">ギャラリー</span></h2>
-                <div class="gallery-wrapper">
-                    <!-- 
-                    【ギャラリー画像変更箇所】
-                    表示したい画像のパス（img/〜）をsrc属性に指定してください。
-                    画像を増やす、または減らす場合は 以下の <div class="gallery-item"> ブロックを追加・削除してください。
-                    -->
-                    <div id="gallery-container" class="gallery-container">
-                        <div class="gallery-item">
-                            <img src="img/gallery/20251219.jpg" width="1108" height="1477"
-                                 alt="2025年12月の研究室集合写真">
+                <!--
+                【3D 横回転リングギャラリー】
+                写真は円周上に均等な角度で並び、Y軸まわりに自動回転します。
+                写真の追加・削除は、下の <div class="ring"> の中の
+                <div class="ring-card"> ブロックを増やす／減らすだけで対応できます。
+                （角度・奥行き・大きさは script.js の initRingGallery() が自動計算します）
+                -->
+                <div class="ring-gallery" id="ring-gallery">
+                    <div class="ring-stage">
+                        <div class="ring" id="ring">
+                            <div class="ring-card" role="button" tabindex="0">
+                                <img src="img/gallery/20251219.jpg" width="1108" height="1477"
+                                     alt="">
+                            </div>
+                            <div class="ring-card" role="button" tabindex="0">
+                                <img src="img/gallery/M1members.jpg" width="1428" height="1071"
+                                     alt="">
+                            </div>
+                            <div class="ring-card" role="button" tabindex="0">
+                                <img src="img/gallery/thermoMano.jpg" width="3024" height="4032"
+                                     alt="">
+                            </div>
+                            <div class="ring-card" role="button" tabindex="0">
+                                <img src="img/news/IEEETOWERS感謝状.jpg"
+                                     alt="">
+                            </div>
                         </div>
-                        <div class="gallery-item">
-                            <img src="img/gallery/M1members.jpg" width="1428" height="1071"
-                                 alt="修士1年のメンバー集合写真">
-                        </div>
-                        <div class="gallery-item">
-                            <img src="img/gallery/thermoMano.jpg" width="3024" height="4032"
-                                 alt="サーモグラフィを使って計測している様子">
-                        </div>
-                        <!--
-                        <div class="gallery-item">
-                            <img src="https://placehold.co/600x400/f472b6/ffffff?\" alt="">
-                        </div>
-                        -->
                     </div>
-                    <button id="prev-btn" class="gallery-btn prev">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    <button type="button" class="ring-btn prev" aria-label="前の写真">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                     </button>
-                    <button id="next-btn" class="gallery-btn next">
-                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    <button type="button" class="ring-btn next" aria-label="次の写真">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </button>
                 </div>
             </div>

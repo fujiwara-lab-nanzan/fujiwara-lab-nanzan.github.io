@@ -70,8 +70,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- ギャラリーの無限ループ & 自動スクロール  ---
+    // --- ギャラリーの無限ループ & 自動スクロール（index.html のヒーロー）  ---
     initGallery();
+
+    // --- 3D 横回転リングギャラリー（gallery.html） ---
+    initRingGallery();
 
     // --- 動的トピックス生成 ---
     initDynamicNews();
@@ -345,6 +348,405 @@ function initGallery() {
     if ('ResizeObserver' in window) new ResizeObserver(handleResize).observe(wrapper);
 
     reduceMotion.addEventListener('change', startAutoScroll);
+}
+
+
+// ==================================
+// 3D 横回転リングギャラリー（gallery.html）
+// ==================================
+// 写真を立体的な円柱の側面に等間隔で並べ、Y軸まわりに回転させます。
+//
+// 【設計方針】
+// ・写真は 360度 ÷ 枚数 の等間隔で配置し、最後と最初が自然に隣り合う完全な円環にします。
+//   回転角は上限を設けず加算し続け、表示は角度の剰余で決まるため、
+//   何周してもジャンプやカクつきは起きません。
+// ・毎フレーム書き換えるのはリング全体の rotateY 1か所だけです。
+//   各カードの位置（角度・奥行き）は画面サイズが変わったときにだけ計算します。
+// ・カードの枠は写真の縦横比どおりに作るため、写真が切れることはありません。
+function initRingGallery() {
+    const gallery = document.getElementById('ring-gallery');
+    if (!gallery) return;
+
+    const ring = gallery.querySelector('.ring');
+    const cards = Array.from(gallery.querySelectorAll('.ring-card'));
+    const count = cards.length;
+    if (!ring || count === 0) return;
+
+    const prevBtn = gallery.querySelector('.ring-btn.prev');
+    const nextBtn = gallery.querySelector('.ring-btn.next');
+
+    const AUTO_SPEED = 0.18;     // 自動回転の速さ（1フレームあたりの度数）
+    const DRAG_THRESHOLD = 8;    // これを超えて動かされたら「ドラッグ」と判定する距離（px）
+    const DEG_PER_PX = 0.3;      // 指・マウスの移動量を回転角へ換算する係数
+    const EASE = 0.12;           // 目標角度へ近づく速さ（スナップのなめらかさ）
+    const stepDeg = 360 / count; // 写真1枚ぶんの角度
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    // mode は 'auto'（自動回転）/ 'animating'（目標角度へ移動中）
+    //        / 'dragging'（手動操作中）/ 'idle'（固定して停止中）
+    let mode = 'auto';
+    let angle = 0;
+    let target = 0;
+    let pendingMode = 'auto'; // animating が終わったあとに移る状態
+    let locked = false;       // 写真を正面に固定しているか
+    let lockedIndex = -1;
+    let radius = 300;
+    let lastRendered = null;
+    let lastWidth = 0;
+    let visible = true;
+
+    // ---- 角度の計算 -------------------------------------------------
+    // 写真 i を正面に持ってくるのに必要な回転角のうち、今の角度にいちばん近いものを返す。
+    // こうすることで、常に短いほうの向きに回ります。
+    const targetFor = (i) => {
+        const base = -i * stepDeg;
+        return base + Math.round((angle - base) / 360) * 360;
+    };
+
+    const indexFromAngle = (a) => {
+        const i = Math.round(-a / stepDeg) % count;
+        return i < 0 ? i + count : i;
+    };
+
+    const frontIndex = () => indexFromAngle(angle);
+
+    // ---- 状態の切り替え ---------------------------------------------
+    const updateHighlight = () => {
+        for (let i = 0; i < count; i++) {
+            cards[i].classList.toggle('is-active', locked && i === lockedIndex);
+        }
+    };
+
+    const unlock = () => {
+        if (!locked) return;
+        locked = false;
+        lockedIndex = -1;
+        updateHighlight();
+    };
+
+    // 写真を正面へ回して固定する
+    const lockTo = (i) => {
+        locked = true;
+        lockedIndex = i;
+        target = targetFor(i);
+        pendingMode = 'idle';
+        mode = 'animating';
+        updateHighlight();
+    };
+
+    // 固定を解除して自動回転へ戻す
+    const resume = () => {
+        unlock();
+        mode = 'auto';
+    };
+
+    // いちばん正面に近い写真へ吸着させ、止まったら自動回転を再開する
+    const snapAndResume = () => {
+        target = targetFor(frontIndex());
+        pendingMode = 'auto';
+        mode = 'animating';
+    };
+
+    // 隣の写真へ移動して固定する（dir: 1=次へ / -1=前へ）
+    const stepBy = (dir) => {
+        target = targetFor(frontIndex()) - dir * stepDeg;
+        locked = true;
+        lockedIndex = indexFromAngle(target);
+        pendingMode = 'idle';
+        mode = 'animating';
+        updateHighlight();
+    };
+
+    // ---- 描画 -------------------------------------------------------
+    // リング全体を -radius だけ奥へ下げることで、正面の写真がちょうど
+    // パースの基準面に来て、実寸どおりの大きさで表示されます。
+    const render = () => {
+        ring.style.transform = 'translateZ(' + (-radius) + 'px) rotateY(' + angle + 'deg)';
+
+        // 正面ほど濃く、背面ほど淡くして奥行きを分かりやすくする
+        for (let i = 0; i < count; i++) {
+            const facing = Math.cos((i * stepDeg + angle) * Math.PI / 180); // 1:正面, -1:背面
+            const opacity = 0.28 + 0.72 * ((facing + 1) / 2);
+            const card = cards[i];
+            if (card.dataset.opacity !== undefined &&
+                Math.abs(parseFloat(card.dataset.opacity) - opacity) < 0.01) continue;
+            card.dataset.opacity = opacity;
+            card.style.opacity = opacity.toFixed(3);
+        }
+    };
+
+    // ---- 寸法・配置の計算（レスポンシブ） ------------------------------
+    const aspectOf = (img) => {
+        if (img.naturalWidth > 0 && img.naturalHeight > 0) {
+            return img.naturalWidth / img.naturalHeight;
+        }
+        // 読み込み前でも HTML の width/height 属性から縦横比が分かる
+        const w = parseFloat(img.getAttribute('width'));
+        const h = parseFloat(img.getAttribute('height'));
+        return (w > 0 && h > 0) ? w / h : 4 / 3;
+    };
+
+    // 指定した高さを基準にしたときの、各カードの寸法とリングの半径を求める
+    const planLayout = (baseHeight, stageWidth) => {
+        const maxWidth = stageWidth * 0.72;
+        const sizes = [];
+        let widest = 0;
+
+        for (let i = 0; i < count; i++) {
+            const aspect = aspectOf(cards[i].querySelector('img'));
+            let w = baseHeight * aspect;
+            let h = baseHeight;
+            if (w > maxWidth) {
+                // 横長すぎる写真は幅で頭打ちにする。縦横比は保つので写真は切れません。
+                w = maxWidth;
+                h = w / aspect;
+            }
+            sizes.push({ w: w, h: h });
+            if (w > widest) widest = w;
+        }
+
+        // 隣り合うカードが重ならない半径。
+        // 円周上の弦の長さ（2 * R * sin(π/枚数)）がカード幅以上になるようにします。
+        const minRadius = count > 1 ? widest / (2 * Math.sin(Math.PI / count)) : 0;
+        return {
+            sizes: sizes,
+            widest: widest,
+            radius: Math.max(minRadius * 1.1, widest * 0.75)
+        };
+    };
+
+    // リングが1周する間に、中心から横方向へいちばん張り出す量を求める。
+    // 奥にあるカードは遠近で小さく見えるため、その縮小率も加味しています。
+    const maxExtent = (r, widest, perspective) => {
+        let max = 0;
+        for (let d = 0; d <= 180; d += 2) {
+            const t = d * Math.PI / 180;
+            const z = r * (Math.cos(t) - 1);              // 正面を0とした奥行き（0 〜 -2R）
+            const scale = perspective / (perspective - z); // 遠近による縮小率
+            const e = scale * Math.abs(r * Math.sin(t) + (widest / 2) * Math.cos(t));
+            if (e > max) max = e;
+        }
+        return max;
+    };
+
+    const measure = () => {
+        const stageWidth = gallery.clientWidth;
+        if (stageWidth === 0) return;
+
+        const stage = gallery.querySelector('.ring-stage');
+        const perspective = parseFloat(getComputedStyle(stage).perspective) || 1100;
+
+        // 画面の幅と高さの両方を見て、写真の基準サイズを決める
+        let baseHeight = Math.max(120, Math.min(stageWidth * 0.5, window.innerHeight * 0.45, 340));
+        const allowed = stageWidth / 2;
+
+        let plan = planLayout(baseHeight, stageWidth);
+
+        // 回転の途中で枠からはみ出す（＝写真の端が切れる）場合は、収まるまで縮める。
+        // 張り出し量はサイズにほぼ比例するので、2回の調整で十分収束します。
+        for (let n = 0; n < 2; n++) {
+            const extent = maxExtent(plan.radius, plan.widest, perspective);
+            if (extent <= allowed) break;
+            baseHeight = Math.max(110, baseHeight * (allowed / extent));
+            plan = planLayout(baseHeight, stageWidth);
+        }
+
+        radius = plan.radius;
+
+        for (let i = 0; i < count; i++) {
+            cards[i].style.width = plan.sizes[i].w + 'px';
+            cards[i].style.height = plan.sizes[i].h + 'px';
+            cards[i].style.transform =
+                'translate(-50%, -50%) rotateY(' + (i * stepDeg) + 'deg) translateZ(' + radius + 'px)';
+        }
+
+        gallery.style.height = Math.round(baseHeight * 1.28) + 'px';
+        lastRendered = null; // 次の描画を必ず走らせる
+    };
+
+    // 高さだけの変化（スマホのアドレスバーの出入り等）では作り直さない
+    const maybeMeasure = () => {
+        const width = gallery.clientWidth;
+        if (width === lastWidth) return;
+        lastWidth = width;
+        measure();
+    };
+
+    // ---- アニメーションループ -------------------------------------------
+    const tick = () => {
+        requestAnimationFrame(tick);
+        if (!visible || document.hidden) return;
+
+        if (mode === 'auto') {
+            // 「動きを減らす」設定の環境では自動回転させない
+            if (!reduceMotion.matches) angle += AUTO_SPEED;
+        } else if (mode === 'animating') {
+            const diff = target - angle;
+            if (Math.abs(diff) < 0.05 || reduceMotion.matches) {
+                angle = target;
+                mode = pendingMode;
+                updateHighlight();
+            } else {
+                angle += diff * EASE;
+            }
+        }
+
+        if (angle !== lastRendered) {
+            render();
+            lastRendered = angle;
+        }
+    };
+
+    // ---- ドラッグ・スワイプ・タップ ---------------------------------------
+    let pointerId = null;
+    let startX = 0;
+    let startY = 0;
+    let startAngle = 0;
+    let downCard = null;
+    let dragging = false;
+    let movedEnough = false;
+    let modeBeforeDrag = 'auto';
+
+    gallery.addEventListener('pointerdown', (e) => {
+        if (e.button > 0) return;
+        if (e.target.closest('.ring-btn')) return; // ボタンはボタン側の処理に任せる
+
+        pointerId = e.pointerId;
+        try { gallery.setPointerCapture(pointerId); } catch (err) { /* 未対応環境では無視 */ }
+
+        startX = e.clientX;
+        startY = e.clientY;
+        startAngle = angle;
+        // ポインタを捕捉すると以降の target が gallery になるため、
+        // 押した瞬間にどの写真だったかをここで覚えておく
+        downCard = e.target.closest('.ring-card');
+        dragging = true;
+        movedEnough = false;
+        modeBeforeDrag = mode;
+
+        // 【重要】ここでは固定を解除しない。
+        // 実際に一定距離動かされたときだけ解除する（タップとドラッグを取り違えないため）
+        mode = 'dragging';
+    });
+
+    gallery.addEventListener('pointermove', (e) => {
+        if (!dragging || e.pointerId !== pointerId) return;
+
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+
+        if (!movedEnough) {
+            if (Math.sqrt(dx * dx + dy * dy) <= DRAG_THRESHOLD) return;
+            movedEnough = true;
+            unlock(); // ここで初めて固定を解除する
+        }
+
+        // 指やマウスの動きにそのまま追従させる（慣性で反発しないように）
+        angle = startAngle + dx * DEG_PER_PX;
+        // 手動操作中は次のフレームを待たずに描き直し、遅れを感じさせないようにする
+        render();
+        lastRendered = angle;
+    });
+
+    const endPointer = (e) => {
+        if (!dragging || (pointerId !== null && e.pointerId !== pointerId)) return;
+        dragging = false;
+        try { gallery.releasePointerCapture(pointerId); } catch (err) { /* 無視 */ }
+        pointerId = null;
+
+        if (movedEnough) {
+            // 手を離したら、いちばん正面に近い写真へピタッと吸着させる
+            snapAndResume();
+            return;
+        }
+
+        // ここからは「動いていない＝タップ／クリック」の処理
+        if (locked) {
+            resume(); // 固定中にもう一度押されたら自動回転へ戻す（トグル）
+        } else if (downCard) {
+            lockTo(cards.indexOf(downCard));
+        } else {
+            mode = modeBeforeDrag; // 背景を押しただけなので元の状態に戻す
+        }
+    };
+
+    gallery.addEventListener('pointerup', endPointer);
+    gallery.addEventListener('pointercancel', endPointer);
+
+    // ---- ホイール／トラックパッド -----------------------------------------
+    let wheelTimer = null;
+    gallery.addEventListener('wheel', (e) => {
+        // 横方向の操作のときだけ回す。
+        // 縦方向まで受け取ってしまうと、ギャラリーの上でページを
+        // 上下にスクロールできなくなるため通しています。
+        if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+        e.preventDefault();
+
+        unlock();
+        angle += e.deltaX * 0.15;
+        mode = 'dragging';
+        render();
+        lastRendered = angle;
+
+        clearTimeout(wheelTimer);
+        wheelTimer = setTimeout(snapAndResume, 160);
+    }, { passive: false });
+
+    // ---- ボタン・キーボード -------------------------------------------------
+    if (prevBtn) prevBtn.addEventListener('click', () => stepBy(-1));
+    if (nextBtn) nextBtn.addEventListener('click', () => stepBy(1));
+
+    gallery.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            stepBy(-1);
+        } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            stepBy(1);
+        } else if (e.key === 'Escape' && locked) {
+            resume();
+        } else if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('ring-card')) {
+            e.preventDefault();
+            const i = cards.indexOf(e.target);
+            if (locked && lockedIndex === i) resume();
+            else lockTo(i);
+        }
+    });
+
+    // ---- 画面サイズ・表示状態の監視 -------------------------------------------
+    let resizeTimer = null;
+    const scheduleMeasure = () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(maybeMeasure, 120);
+    };
+
+    window.addEventListener('resize', scheduleMeasure);
+    if ('ResizeObserver' in window) {
+        // 高さは measure() 自身が書き換えるため、幅が変わったときだけ再計算する
+        // （そうしないと監視と再計算が無限に呼び合ってしまう）
+        new ResizeObserver(scheduleMeasure).observe(gallery);
+    }
+
+    // 画面外にあるときは描画を止める（スマホの電池消費を抑えるため）
+    if ('IntersectionObserver' in window) {
+        new IntersectionObserver((entries) => {
+            visible = entries[0].isIntersecting;
+        }).observe(gallery);
+    }
+
+    // 画像の実寸が分かった時点で測り直す
+    cards.forEach((card) => {
+        const img = card.querySelector('img');
+        if (img && !img.complete) {
+            img.addEventListener('load', () => { lastWidth = 0; maybeMeasure(); }, { once: true });
+        }
+    });
+
+    maybeMeasure();
+    updateHighlight();
+    render();
+    tick();
 }
 
 

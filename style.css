@@ -1068,6 +1068,116 @@ img {
 .gallery-btn svg { width: 1.25rem; height: 1.25rem; }
 
 /* ==================================
+ * 3D 横回転リングギャラリー (gallery.html)
+ * ==================================
+ * 写真を立体的な円柱（シリンダー）の側面に等間隔で並べ、Y軸まわりに回転させます。
+ * カードの寸法・角度・奥行き（半径）は script.js の initRingGallery() が
+ * 画面幅に応じて計算し、インラインスタイルで設定します。
+ * ここでは見た目（角丸・影・ハイライト）と3D空間の土台だけを定義しています。 */
+.ring-gallery {
+  position: relative;
+  width: 100%;
+  /* JS が実測して上書きします。JS 実行前の高さのブレ（レイアウトシフト）を防ぐための初期値 */
+  height: clamp(260px, 52vw, 440px);
+  /* 回り込んだカードが画面外へはみ出して横スクロールが出ないように切り取る */
+  overflow: hidden;
+  /* 縦方向のページスクロールは残しつつ、横方向のスワイプだけJSで扱う */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  cursor: grab;
+}
+
+.ring-gallery:active {
+  cursor: grabbing;
+}
+
+/* 遠近感（パース）を与える層。overflow を持つ親と分けることで、
+   切り取りによって3D表現が平面化するのを避けています。 */
+.ring-stage {
+  position: absolute;
+  inset: 0;
+  perspective: 1100px;
+}
+
+/* 写真を載せる回転体そのもの。JS はこの要素の rotateY だけを毎フレーム書き換えます */
+.ring {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* 枠は写真の縦横比どおりに作られるため、写真が切り取られることはありません */
+.ring-card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  /* 幅・高さ・transform・opacity は script.js が設定します */
+}
+
+.ring-card img {
+  width: 100%;
+  height: 100%;
+  max-width: none; /* 全体の img { max-width: 100% } を打ち消す */
+  object-fit: contain;
+  display: block;
+  border-radius: inherit;
+  /* ドラッグ中に画像そのものがつかまれるのを防ぐ */
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* クリック／タップで正面に固定した写真の強調枠 */
+.ring-card.is-active {
+  box-shadow: 0 0 0 3px var(--accent), 0 14px 36px rgba(0, 200, 255, 0.35);
+}
+
+.ring-card:focus-visible {
+  outline: 3px solid var(--accent-deep);
+  outline-offset: 3px;
+}
+
+/* 前へ／次へボタン（見た目は他ページのギャラリーボタンと揃えています） */
+.ring-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--light-border);
+  border-radius: 50%;
+  width: 2.5rem;
+  height: 2.5rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--light-text-primary);
+  transition: all var(--transition-normal);
+}
+
+.ring-btn:hover {
+  background-color: var(--light-surface);
+  border-color: var(--accent);
+  color: var(--accent-deep);
+  box-shadow: 0 2px 8px rgba(0, 200, 255, 0.15);
+}
+
+.ring-btn:focus-visible {
+  outline: 2px solid var(--accent-deep);
+  outline-offset: 2px;
+}
+
+.ring-btn.prev { left: 0.5rem; }
+.ring-btn.next { right: 0.5rem; }
+.ring-btn svg { width: 1.25rem; height: 1.25rem; }
+
+/* ==================================
  * アクセス
  * ================================== */
 #contact {
