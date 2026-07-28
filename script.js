@@ -375,7 +375,11 @@ function initRingGallery() {
     const prevBtn = gallery.querySelector('.ring-btn.prev');
     const nextBtn = gallery.querySelector('.ring-btn.next');
 
-    const AUTO_SPEED = 0.18;     // 自動回転の速さ（1フレームあたりの度数）
+    // 自動回転の速さ（1フレームあたりの度数）。
+    // 符号が回転の向きです。マイナスにすると「次へ」ボタンと同じ向きに回り、
+    // 写真はHTMLに書いた順（上から下）に正面へ出てきます。
+    // 逆回しにしたい場合は +0.18 にしてください。
+    const AUTO_SPEED = -0.18;
     const DRAG_THRESHOLD = 8;    // これを超えて動かされたら「ドラッグ」と判定する距離（px）
     const DEG_PER_PX = 0.3;      // マウスでドラッグしたときの、移動量→回転角の換算係数
     // 指でのスワイプはマウスの2倍にする。画面が狭く大きく動かせないため、
