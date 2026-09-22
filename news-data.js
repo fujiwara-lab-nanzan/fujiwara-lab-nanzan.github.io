@@ -35,6 +35,14 @@
 
 const NEWS_DATA = [
     {
+        date: "2026.09.17",
+        title: "2026年9月に開催されたSICE FESTIVAL 2026において修士2年の眞野健さんの「Acoustic Levitation and Manipulation Using Multiple Laguerre-Gaussian Beams with a Common Focus」がFinalists of the SICE Annual Conference Poster Presentation AwardとMitsubishi Electric Idea Awardを受賞しました。"
+    },
+    {
+        date: "2026.09.15",
+        title: "修士2年の眞野健さんが、SICE FESTIVAL 2026にて発表しました。"
+    },
+    {
         date: "2026.03.23",
         title: "2025年12月に開催されたSI2025において修士1年の石橋侑也さんの「アレイ信号処理による表面音響導波路上の小型障害物の測位」が優秀講演賞を受賞しました。"
     },
