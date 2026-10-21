@@ -6,8 +6,7 @@
 // 各関数の役割は以下の通りです：
 // - 現在ページのナビゲーションメニューの強調表示
 // - モバイルメニューのトグル開閉処理
-// - initHeaderScroll: ヘッダーの透明から不透明への変化
-// - initWaveCanvas: ファーストビュー背景の超音波ウェーブ描画
+// - initHeaderScroll: スクロール時にヘッダーへ影をつける
 // - initDynamicNews: news-data.js からニュースを読み込み、自動生成
 // =================================================================
 
@@ -36,39 +35,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- ヘッダーのスクロール変化（透明→不透明） ---
+    // --- ヘッダーのスクロール変化（影をつける） ---
     initHeaderScroll();
-
-    // --- 超音波 波動Canvasアニメーション ---
-    initWaveCanvas();
-
-    // --- カウントアップアニメーション ---
-    initCountUp();
-
-    // --- お知らせの折りたたみ機能 (news.html専用) ---
-    const toggleNewsBtn = document.getElementById('toggle-news-btn');
-    const extraNews = document.getElementById('extra-news');
-    if (toggleNewsBtn && extraNews) {
-        const headerHeight = document.querySelector('.site-header').offsetHeight;
-        toggleNewsBtn.addEventListener('click', () => {
-            const isCurrentlyActive = extraNews.classList.contains('active');
-            extraNews.classList.toggle('active');
-
-            if (isCurrentlyActive) {
-                toggleNewsBtn.textContent = 'さらに表示';
-                const buttonRect = toggleNewsBtn.getBoundingClientRect();
-                if (buttonRect.top < headerHeight) {
-                    const targetPosition = buttonRect.top + window.pageYOffset - headerHeight - 20;
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'smooth'
-                    });
-                }
-            } else {
-                toggleNewsBtn.textContent = '折りたたむ';
-            }
-        });
-    }
 
     // --- ギャラリーの無限ループ & 自動スクロール（index.html のヒーロー）  ---
     initGallery();
@@ -87,8 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==================================
 // ヘッダーのスクロール制御
 // ==================================
-// スクロール量が 80px を超えた場合にヘッダーの背景を不透明にし、
-// 影をつけて境界線をはっきりさせます。（site-header.scrolled クラスが適用されます）
+// スクロール量が 80px を超えた場合にヘッダーへ薄い影をつけ、
+// 本文との境界をはっきりさせます。（site-header.scrolled クラスが適用されます）
 function initHeaderScroll() {
     const header = document.querySelector('.site-header');
     if (!header) return;
@@ -780,134 +748,6 @@ function initRingGallery() {
     updateHighlight();
     render();
     tick();
-}
-
-
-// ==================================
-// 超音波 波動（Canvas）アニメーション
-// ==================================
-// 正弦波（サイン波）を複数重ね合わせ、干渉させることで
-// 超音波が空間を伝搬しているイメージを背景に描画し続けます。
-function initWaveCanvas() {
-    const canvas = document.getElementById('wave-canvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-
-    // 表示上の大きさ（CSSピクセル）。描画計算はこの値を基準に行います。
-    let width = 0;
-    let height = 0;
-
-    function resize() {
-        width = canvas.parentElement.offsetWidth;
-        height = canvas.parentElement.offsetHeight;
-
-        // 高解像度ディスプレイでは実ピクセル数が CSS ピクセルの整数倍あるため、
-        // 等倍のまま描くと波線がぼやけます。画面の倍率に合わせて実寸を確保します。
-        const ratio = window.devicePixelRatio || 1;
-        canvas.width = Math.round(width * ratio);
-        canvas.height = Math.round(height * ratio);
-        canvas.style.width = width + 'px';
-        canvas.style.height = height + 'px';
-        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    // 「動きを減らす」設定の環境ではアニメーションさせず、静止画として一度だけ描く
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    // ヒーローが画面外にあるときは描画を止める（スマホの電池消費を抑えるため）
-    let isVisible = true;
-    if ('IntersectionObserver' in window) {
-        new IntersectionObserver((entries) => {
-            isVisible = entries[0].isIntersecting;
-        }).observe(canvas.parentElement);
-    }
-
-    let time = 0;
-
-    function drawWaves() {
-        // 停止中はフレームを進めず、次の確認だけ予約する
-        if (!isVisible || document.hidden) {
-            requestAnimationFrame(drawWaves);
-            return;
-        }
-
-        ctx.clearRect(0, 0, width, height);
-
-        // 複数の波を重ね合わせて超音波の干渉パターンを表現
-        const waves = [
-            { amplitude: 30, frequency: 0.008, speed: 0.02, yOffset: 0.3, color: 'rgba(0, 180, 255, 0.25)', lineWidth: 1.5 },
-            { amplitude: 25, frequency: 0.012, speed: 0.025, yOffset: 0.4, color: 'rgba(0, 220, 255, 0.18)', lineWidth: 1 },
-            { amplitude: 40, frequency: 0.006, speed: 0.015, yOffset: 0.5, color: 'rgba(0, 160, 255, 0.22)', lineWidth: 2 },
-            { amplitude: 20, frequency: 0.015, speed: 0.03, yOffset: 0.6, color: 'rgba(100, 200, 255, 0.12)', lineWidth: 1 },
-            { amplitude: 35, frequency: 0.01, speed: 0.018, yOffset: 0.7, color: 'rgba(0, 140, 255, 0.18)', lineWidth: 1.5 },
-        ];
-
-        waves.forEach(wave => {
-            ctx.beginPath();
-            ctx.strokeStyle = wave.color;
-            ctx.lineWidth = wave.lineWidth;
-
-            for (let x = 0; x < width; x += 2) {
-                const y = height * wave.yOffset
-                    + Math.sin(x * wave.frequency + time * wave.speed) * wave.amplitude
-                    + Math.sin(x * wave.frequency * 2.5 + time * wave.speed * 1.5) * wave.amplitude * 0.3;
-
-                if (x === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            }
-            ctx.stroke();
-        });
-
-        // 「動きを減らす」設定のときは時間を進めず、波を静止させる
-        if (!reduceMotion.matches) time += 1;
-        requestAnimationFrame(drawWaves);
-    }
-
-    drawWaves();
-}
-
-// ==================================
-// カウントアップアニメーション
-// ==================================
-function initCountUp() {
-    const counters = document.querySelectorAll('.stat-number');
-    if (counters.length === 0) return;
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const el = entry.target;
-                const target = parseInt(el.dataset.target, 10);
-                if (isNaN(target)) return;
-
-                const duration = 2000;
-                const start = performance.now();
-
-                function update(now) {
-                    const elapsed = now - start;
-                    const progress = Math.min(elapsed / duration, 1);
-                    // easeOutQuart
-                    const eased = 1 - Math.pow(1 - progress, 4);
-                    el.textContent = Math.floor(eased * target);
-                    if (progress < 1) {
-                        requestAnimationFrame(update);
-                    } else {
-                        el.textContent = target;
-                    }
-                }
-
-                requestAnimationFrame(update);
-                observer.unobserve(el);
-            }
-        });
-    }, { threshold: 0.5 });
-
-    counters.forEach(counter => observer.observe(counter));
 }
 
 

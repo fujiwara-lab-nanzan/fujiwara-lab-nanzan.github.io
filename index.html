@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -72,7 +72,6 @@
     <main>
         <!-- ===== ヒーローセクション ===== -->
         <section class="hero-gallery-section">
-            <canvas id="wave-canvas"></canvas>
             <div class="gallery-wrapper">
                 <div class="hero-overlay">
                     <div>
@@ -115,16 +114,6 @@
             </div>
 
         </section>
-
-        <!-- ===== 波形ディバイダー ===== -->
-        <div class="wave-divider">
-            <svg viewBox="0 0 1200 60" preserveAspectRatio="none">
-                <path d="M0,30 C200,60 400,0 600,30 C800,60 1000,0 1200,30 L1200,60 L0,60 Z"
-                      fill="var(--light-bg)" />
-                <path d="M0,40 C200,60 400,15 600,40 C800,60 1000,15 1200,40 L1200,60 L0,60 Z"
-                      fill="var(--light-bg)" opacity="0.6" />
-            </svg>
-        </div>
 
         <!-- ===== 研究室紹介 & トピックス ===== -->
         <section class="page-section">
@@ -173,7 +162,7 @@
     <!-- 
     【データおよびスクリプトの読み込み】
     - news-data.js: トピックス（ニュース）データの一元管理ファイル
-    - script.js: 波動Canvas、スライドショー、ヘッダースクロール変化等のスクリプト
+    - script.js: スライドショー、ヘッダースクロール変化等のスクリプト
     -->
     <script src="news-data.js"></script>
     <script src="script.js"></script>
