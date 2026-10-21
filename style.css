@@ -608,15 +608,16 @@ img {
   padding: 0.5rem;
 }
 
-/* メンバーページの教員名リンク */
+/* メンバーページの教員名リンク
+   名前から教員紹介ページへ飛べることが分かるよう、リンク色と下線を常に表示しています */
 .faculty-member p a {
-  color: var(--light-text-primary);
-  text-decoration: none;
-  transition: color var(--transition-fast);
+  color: var(--accent-deep);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
 }
 
 .faculty-member p a:hover {
-  color: var(--accent-deep);
+  text-decoration-thickness: 2px;
 }
 
 /* ==================================
